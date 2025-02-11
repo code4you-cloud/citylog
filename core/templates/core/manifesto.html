@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="text-primary"><i class="fas fa-globe"></i> CityLog: Una Scelta Etica e Civica</h1>
+        <p class="lead text-muted">Per una città più trasparente, condivisa e responsabile.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-body">
+                    <h4 class="card-title text-success"><i class="fas fa-handshake"></i> Un Progetto di Valore</h4>
+                    <p class="card-text">
+                        **CityLog** nasce come **iniziativa civica e indipendente**, priva di scopi di lucro e di qualsiasi affiliazione politica o ideologica.  
+                        Il nostro obiettivo è semplice ma potente: **offrire uno strumento aperto, trasparente e partecipativo per monitorare e migliorare le città**.
+                    </p>
+                    
+                    <h4 class="mt-4 text-info"><i class="fas fa-leaf"></i> Un Servizio per Tutti</h4>
+                    <p class="card-text">
+                        Chiunque può contribuire a rendere la propria città più vivibile, segnalando criticità e condividendo dati utili.  
+                        **CityLog** è un'opportunità per esercitare il proprio **senso civico**, unendo le forze per costruire spazi urbani migliori.
+                    </p>
+
+                    <h4 class="mt-4 text-warning"><i class="fas fa-hands-helping"></i> Totalmente Indipendente</h4>
+                    <p class="card-text">
+                        Il progetto è **autofinanziato**, senza sponsor né pubblicità.  
+                        Il nostro impegno è garantire un servizio libero e accessibile a tutti.  
+                        Se vuoi sostenere CityLog, puoi contribuire con una **donazione spontanea**.
+                    </p>
+
+                    <div class="text-center mt-4">
+                        <a href="{% url 'core:donazioni-view' %}" class="btn btn-primary mt-auto">
+                            <i class="fas fa-donate"></i> Sostieni CityLog
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spazio extra per bilanciare il layout -->
+    <div class="mt-5"></div>
+</div>
+
+{% endblock %}
+
