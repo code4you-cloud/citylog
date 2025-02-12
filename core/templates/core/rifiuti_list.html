@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-primary"><i class="fas fa-trash-alt"></i> Segnalazioni Rifiuti</h1>
+    <h1 class="text-primary"><i class="fas fa-trash-alt"></i> {{ page_title }}</h1>
 
     <div class="table-responsive"> <!-- Questo rende la tabella scorrevole su schermi piccoli -->
         <table class="table table-striped table-bordered">
@@ -13,8 +13,8 @@
                     <th>Longitudine</th>
                     <th>Città</th>
                     <th>Indirizzo</th>
-                    <th>Data</th>
-                    <th>Immagine</th>
+                    <th>Image.time</th>
+                    <th>Immagine.id</th>
                     <th>Typo</th>
                     <th>Dettagli</th>
                 </tr>
@@ -26,21 +26,24 @@
                     <td>{{ segnalazione.latitude }}</td>
                     <td>{{ segnalazione.longitude }}</td>
                     <td>{{ segnalazione.city|default:"-" }}</td>
-                    <td>{{ segnalazione.address|default:"-" }}</td>
+                    <td><a href="{{ segnalazione.image_url }}">{{ segnalazione.address|default:"-" }}</td>
                     <td>{{ segnalazione.image_time|date:"d/m/Y H:i" }}</td>
-                    <td>
-                        {% if segnalazione.image_url %}
-                            <img src="{{ segnalazione.image_url }}" class="img-thumbnail" width="80" alt="Immagine">
-                        {% else %}
-                            Nessuna
-                        {% endif %}
-                    </td>
+                    <td>{{ segnalazione.image_id }}</td>
                     <td><span class="badge badge-info">{{ segnalazione.typo }}</span></td>
-                    <td>
+                    <td style="width: 100px; height: 100px;">
+                             {% if segnalazione.status == '0' %}
+                             <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ segnalazione.latitude }}&lon={{ segnalazione.longitude }}&zoom=15&address={{ segnalazione.address }}&image_url=https://image.citylog.cloud{{ segnalazione.image_url }}" target="_blank">
+                                 <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
+                             </a>
+                             {% else %}
+                                 <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
+                             {% endif %}
+                         </td>
+                    <!--td>
                         <a href="{% url 'core:segnalazione-detail' segnalazione.pk %}" class="btn btn-sm btn-primary">
                             Dettagli
                         </a>
-                    </td>
+                    </td-->
                 </tr>
                 {% empty %}
                 <tr>

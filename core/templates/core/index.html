@@ -15,7 +15,7 @@
                                     <p class="card-text">Citylog permette ai cittadini di segnalare l’abbandono illecito 
                                     di rifiuti, contribuendo a contrastare il degrado urbano. Sensibilizziamo la comunità 
                                     e supportare interventi tempestivi per mantenere la città pulita e vivibile.</p>
-                                    <a href="{% url 'core:segnalazioni-list' %}" class="btn btn-primary mt-auto">Button</a>
+                                    <a href="{% url 'core:segnalazioni-list' %}?typo=rifiuti" class="btn btn-primary mt-auto">Button</a>
                                 </div>
                             </div>
                         </div>
@@ -27,7 +27,7 @@
                                     <p class="card-text">Citylog promuove la tutela dell’ambiente urbano mappando decimazioni 
                                     ambientali e il degrado del verde pubblico. Ogni segnalazione aiuta a proteggere e valorizzare gli spazi 
                                     naturali urbani.</p>
-                                    <a href="{% url 'core:segnalazioni-list' %}" class="btn btn-primary mt-auto">Button</a>
+                                    <a href="{% url 'core:segnalazioni-list' %}?typo=ambiente" class="btn btn-primary mt-auto">Button</a>
                                 </div>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                                     <p class="card-text">Citylog consente ai cittadini di segnalare buche e dissesti stradali, 
                                     contribuendo a migliorare la sicurezza e la viabilità urbana. Le segnalazioni vengono raccolte 
                                     anche per creare una mappa dedicata, utile per interventi mirati..</p>
-                                    <a href="{% url 'core:segnalazioni-list' %}" class="btn btn-primary mt-auto">Button</a>
+                                    <a href="{% url 'core:segnalazioni-list' %}?typo=rete" class="btn btn-primary mt-auto">Button</a>
                                 </div>
                             </div>
                         </div>

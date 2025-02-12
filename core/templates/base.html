@@ -19,7 +19,7 @@
             <div class="row align-items-center vh-50 py-5">
                 <div class="col-xl-5 col-lg-6 ml-auto py-2 text-light order-2 text-center text-lg-left">
                     <h1 class="mb-0">
-                        <span>CityLog</span>
+                        <span>{{ page_title }}</span>
                     </h1>
                     <p class="lead mb-3"><span>Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria citt&agrave;. Tramite <a class="font-weight-bold text-white" href="http://themestr.app"> citylog app</a>, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale.</p>
                 </div>
@@ -89,10 +89,10 @@
                 <div class="col-6 col-md-6 col-lg-3 mb-2">
                     <h6 class="text-uppercase">Service</h6>
                     <ul class="nav flex-column">
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}" title="Rifiuti">Rifiuti</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}" title="Ambiente">Ambiente</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}" title="Buche">Buche</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}" title="Buche">Inquinamento</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=rifiuti" title="Rifiuti">Rifiuti</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=ambiente" title="Ambiente">Ambiente</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}typo=buche" title="Buche">Buche</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=inquinamento" title="Buche">Inquinamento</a></li>
                         <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:manifesto-view' %}">Manifesto</a></li>
                     </ul>
                 </div>
