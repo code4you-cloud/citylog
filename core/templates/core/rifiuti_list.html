@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-primary"><i class="fas fa-trash-alt"></i> {{ page_title }}</h1>
+    <h1 class="text-primary">{{ page_title }} - <h3 class="text-secondary">{{ typo|default:"anything" }}</h3></h1>
 
     <div class="table-responsive"> <!-- Questo rende la tabella scorrevole su schermi piccoli -->
         <table class="table table-striped table-bordered">

@@ -40,14 +40,16 @@ class RifiutiListView(ListView):
 
         # Imposta i valori di default se il tipo non è riconosciuto
         context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
-        context["page_type"] = page_type  # Passa il tipo per gestire l'icona nel template
-
+        context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset()
         tipo = self.request.GET.get("typo")
-        if tipo:
+        if tipo == "ambiente":
+            queryset = queryset.filter(typo__in=["piantumazione", "tronchi", "censimento"])
+            #queryset = queryset.filter(typo=tipo)
+        else:
             queryset = queryset.filter(typo=tipo)
         return queryset
 
