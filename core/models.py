@@ -25,6 +25,19 @@ class ApiKeys(models.Model):
         db_table = 'api_keys'
 
 class EmailsEmaildata(models.Model):
+
+    STATUS_CHOICES = (
+        ('pending', 'In attesa'),
+        ('approved', 'Approvato'),
+        ('rejected', 'Rifiutato'),
+    )
+
+    TYPE_CHOICES = (
+        ('web', 'Web'),
+        ('email', 'Email'),
+        ('app', 'Applicazione'),
+    )
+
     id = models.BigIntegerField(primary_key=True)
     latitude = models.CharField(max_length=50, blank=True, null=True)
     longitude = models.CharField(max_length=50, blank=True, null=True)
