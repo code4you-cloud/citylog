@@ -9,13 +9,16 @@ import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
 from .forms import ReportWebForm
-from .models import Report
+from .models import Report, get_image_path  # Assicurati di importarlo correttamente
+
 from datetime import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
 from django.conf import settings
+from django.views.generic import ListView
 
 logger = logging.getLogger(__name__)
 
@@ -173,12 +176,18 @@ def create_report(request):
                 address=address,
                 image_time=image_time,
                 image_id=image_id,
-                image_url=None,
+                #image_url=None,
+                #image_url=upload_image if upload_image else None,
                 image_file=upload_image if upload_image else None,
                 status="pending",
                 typo="web",
             )
             report.save()
+
+            # Ora assegna il valore corretto a image_url e salva di nuovo
+            if upload_image:
+                report.image_url = f"{get_image_path(report, upload_image.name)}"
+                report.save()
 
             # Pulisci il file temporaneo se necessario
             if file_path and os.path.exists(file_path):
@@ -197,7 +206,7 @@ def create_report(request):
             # Altrimenti, reindirizza con messaggio di successo
             from django.contrib import messages
             messages.success(request, 'Segnalazione inviata con successo!')
-            return redirect('report_success')
+            return redirect('reports:report_success')
 
         else:
             # Se ci sono errori di validazione
@@ -214,3 +223,33 @@ def create_report(request):
 
 def report_success(request):
     return render(request, 'report/report_success.html')
+
+
+class ReportListView(ListView):
+    model = Report
+    template_name = "report/report_list.html"  # Template da usare
+    context_object_name = "reports"  # Nome del contesto nel template
+    paginate_by = 20  # Opzionale: paginazione
+
+    def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+
+         # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+         page_type = self.request.GET.get("typo", "default")
+
+         # Definisci i titoli e le descrizioni in base al tipo di pagina
+         page_titles = {
+             "ambiente": ("Monitoraggio Ambientale", "Scopri le segnalazioni ambientali nella tua città."),
+             "rete": ("Rete Stradale", "Partecipa alla segnalazione della rete stradale."),
+             "rifiuti": ("Monitoraggio Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
+             "web": ("Segnalazioni da Sito", "Partecipa come cittadino alle segnalazioni della tua citta+."),
+             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
+                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
+         }
+
+         # Imposta i valori di default se il tipo non è riconosciuto
+         context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+         context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+         context["MEDIA_URL"] = settings.MEDIA_URL  # Passa MEDIA_URL al template
+         return context
+

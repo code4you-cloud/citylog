@@ -22,9 +22,10 @@ class Report(models.Model):
     )
 
     TYPE_CHOICES = (
-        ('web', 'Web'),
-        ('email', 'Email'),
-        ('app', 'Applicazione'),
+        ('rifiuti', 'Rifiuti'),
+        ('tronchi', 'Tronchi'),
+        ('censimento', 'Censimento'),
+        ('piantumazione', 'Piantumazione'),
     )
 
     id = models.AutoField(primary_key=True)
@@ -34,7 +35,7 @@ class Report(models.Model):
     address = models.CharField(max_length=255)
     image_time = models.DateTimeField(default=datetime.now)
     image_id = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
-    image_url = models.URLField(null=True, blank=True)
+    image_url = models.CharField(max_length=255,null=True, blank=True)
     image_file = models.ImageField(upload_to=get_image_path, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     typo = models.CharField(max_length=20, choices=TYPE_CHOICES, default='web')
