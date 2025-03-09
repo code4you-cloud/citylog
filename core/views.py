@@ -1,9 +1,16 @@
+import logging
+
 from django.shortcuts import render
 from django.views.generic import TemplateView, ListView, DetailView
 
 from django.shortcuts import get_object_or_404
-
 from django.conf import settings
+
+from django.views.decorators.http import require_http_methods
+#from .models import EmailsEmaildata
+
+logger = logging.getLogger(__name__)
+
 # Create your views here.
 
 class HomePage(TemplateView):
@@ -74,4 +81,3 @@ class DonazioniView(TemplateView):
 class ManifestoView(TemplateView):
     model = EmailsEmaildata
     template_name = "core/manifesto.html"
-
