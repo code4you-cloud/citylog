@@ -1,12 +1,21 @@
 import logging
+import requests
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView
 
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse, HttpResponseRedirect
+
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+
+from report.models import Report
+
 #from .models import EmailsEmaildata
 
 logger = logging.getLogger(__name__)
@@ -81,3 +90,107 @@ class DonazioniView(TemplateView):
 class ManifestoView(TemplateView):
     model = EmailsEmaildata
     template_name = "core/manifesto.html"
+
+# Vista per la pagina regolamento
+class RegoleView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/regole.html"
+
+def facebook_callback(request):
+    code = request.GET.get("code")
+    if not code:
+        return redirect("core:home")
+
+    # Scambio del codice con un access token
+    token_url = f"https://graph.facebook.com/v17.0/oauth/access_token"
+    params = {
+        "client_id": settings.FACEBOOK_APP_ID,
+        "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+        "client_secret": settings.FACEBOOK_APP_SECRET,
+        "code": code,
+    }
+    response = requests.get(token_url, params=params)
+    token_data = response.json()
+
+    access_token = token_data.get("access_token")
+    if not access_token:
+        return redirect("core:home")
+
+    # Ottenere i dati dell'utente
+    user_info_url = "https://graph.facebook.com/me"
+    user_params = {
+        "fields": "id,name,email,picture",
+        "access_token": access_token,
+    }
+    user_response = requests.get(user_info_url, params=user_params)
+    user_data = user_response.json()
+
+    facebook_id = user_data.get("id")
+    name = user_data.get("name")
+    email = user_data.get("email")
+    picture_url = user_data.get("picture", {}).get("data", {}).get("url")
+
+    if not email:
+        return redirect("core:home")
+
+    # Creazione o autenticazione dell'utente
+    user, created = User.objects.get_or_create(username=email, defaults={"first_name": name, "email": email})
+    #user.profile.picture = picture_url  # Salviamo l'URL dell'immagine nel profilo
+    #user.profile.save()
+
+    # get facebook picture and name
+    request.session['facebook_picture'] = picture_url
+    request.session['facebook_name'] = name
+    request.sessiom = picture_url  # Salviamo l'URL dell'immagine nel profilo
+
+    login(request, user)
+    return redirect("dashboard")  # Reindirizza alla dashboard
+
+
+def facebook_callback_(request):
+    code = request.GET.get("code")
+
+    if not code:
+        return redirect("core:home")  # Se manca il codice, rimanda alla home
+
+    # Scambio del code con un access_token
+    token_url = f"https://graph.facebook.com/v17.0/oauth/access_token"
+    params = {
+        "client_id": settings.FACEBOOK_APP_ID,
+        "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+        "client_secret": settings.FACEBOOK_APP_SECRET,
+        "code": code,
+    }
+    response = requests.get(token_url, params=params)
+    token_data = response.json()
+
+    access_token = token_data.get("access_token")
+    if not access_token:
+        return redirect("core:home")  # Se manca il token, torna alla home
+
+    # Ottenere i dati dell'utente
+    user_info_url = "https://graph.facebook.com/me"
+    user_params = {
+        "fields": "id,name,email",
+        "access_token": access_token,
+    }
+    user_response = requests.get(user_info_url, params=user_params)
+    user_data = user_response.json()
+
+    facebook_id = user_data.get("id")
+    name = user_data.get("name")
+    email = user_data.get("email")
+
+    if not email:
+        return redirect("core:home")  # Facebook potrebbe non restituire l'email
+
+    # Creazione o autenticazione dell'utente
+    user, created = User.objects.get_or_create(username=email, defaults={"first_name": name, "email": email})
+    login(request, user)  # Login automatico
+
+    return redirect("core:home")  # Reindirizza alla home dopo il login
+
+@login_required
+def dashboard(request):
+    user_reports = Report.objects.filter(user=request.user).order_by('-image_time')  # Filtra per utente autenticato
+    return render(request, 'core/dashboard.html', {'reports': user_reports, "MEDIA_URL": settings.MEDIA_URL})

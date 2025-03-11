@@ -12,13 +12,16 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from .forms import ReportWebForm
 from .models import Report, get_image_path  # Assicurati di importarlo correttamente
+#from utilities.ai_utils import classify_image
+
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.views.generic import ListView
+from django.contrib import messages
 
 from datetime import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
-
-from django.conf import settings
-from django.views.generic import ListView
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +113,7 @@ def geocode_city(city):
         logger.error(f"Errore nella geocodifica: {e}")
         return None
 
+@login_required
 @require_http_methods(["GET", "POST"])
 def create_report(request):
     if request.method == "POST":
@@ -170,6 +174,7 @@ def create_report(request):
 
             # Crea e salva il report
             report = Report(
+                user=request.user,  # 🔹 Associa il report all'utente autenticato
                 latitude=latitude,
                 longitude=longitude,
                 city=city or 'Sconosciuta',
@@ -182,6 +187,11 @@ def create_report(request):
                 status="pending",
                 typo="web",
             )
+
+            # Classificazione AI Enable AI
+            #categoria_predetta = classify_image(segnalazione.immagine.path)
+            #report.typo = categoria_predetta
+
             report.save()
 
             # Ora assegna il valore corretto a image_url e salva di nuovo
@@ -204,7 +214,6 @@ def create_report(request):
                 })
 
             # Altrimenti, reindirizza con messaggio di successo
-            from django.contrib import messages
             messages.success(request, 'Segnalazione inviata con successo!')
             return redirect('reports:report_success')
 

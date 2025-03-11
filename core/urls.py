@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomePage, RifiutiListView, RifiutiDetailView, DonazioniView, ManifestoView
+from .views import HomePage, RifiutiListView, RifiutiDetailView, DonazioniView, ManifestoView, RegoleView
 
 app_name='core'
 
@@ -10,4 +10,5 @@ urlpatterns =[
     path("segnalazione/<int:pk>/", RifiutiDetailView.as_view(), name="segnalazione-detail"),
     path("donazioni/", DonazioniView.as_view(), name="donazioni-view"),
     path("manifesto/", ManifestoView.as_view(), name="manifesto-view"),
+    path("regole/", RegoleView.as_view(), name="regole-view"),
 ]

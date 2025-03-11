@@ -8,6 +8,7 @@
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
                 <tr>
+                    <th>User</th>
                     <th>ID</th>
                     <th>Latitudine</th>
                     <th>Longitudine</th>
@@ -22,6 +23,17 @@
             <tbody>
                 {% for report in reports %}
                 <tr>
+                    <td>
+                        <!-- Icona utente Facebook -->
+                        {% if request.session.facebook_picture %}
+                            <img src="{{ request.session.facebook_picture }}" alt="Profilo" class="rounded-circle me-1" style="width: 30px; height: 30px;">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-lg text-secondary me-1"></i>
+                        {% endif %}
+                        <!-- Nome utente -->
+                        {{ request.session.facebook_name|default:"Anonimo" }}
+                    </td>
+
                     <td>{{ report.id }}</td>
                     <td>{{ report.latitude|default:"-" }}</td>
                     <td>{{ report.longitude|default:"-" }}</td>

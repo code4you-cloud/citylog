@@ -7,6 +7,7 @@ import uuid
 import os
 from datetime import datetime
 from django.db import models
+from django.contrib.auth.models import User
 
 def get_image_path(instance, filename):
     # Genera un percorso univoco per ogni immagine caricata
@@ -29,6 +30,7 @@ class Report(models.Model):
     )
 
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Nuovo campo
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     city = models.CharField(max_length=100)
