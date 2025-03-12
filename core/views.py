@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from report.models import Report
+from .models import EmailsEmaildata, Users, Trees
 
 #from .models import EmailsEmaildata
 
@@ -30,8 +31,6 @@ class HomePage(TemplateView):
         path = settings.MEDIA_ROOT
         context['MEDIA_URL'] = settings.MEDIA_URL
         return context
-
-from .models import EmailsEmaildata, Users, Trees
 
 # Vista per la lista di segnalazioni rifiuti
 class RifiutiListView(ListView):
@@ -50,6 +49,8 @@ class RifiutiListView(ListView):
             "ambiente": ("Monitoraggio Ambientale", "Scopri le segnalazioni ambientali nella tua città."),
             "rete": ("Rete Stradale", "Partecipa alla segnalazione della rete stradale."),
             "rifiuti": ("Monitoraggio Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
+            "buche": ("Buche", "Monitora le buche o dissesti stradali pericolosi."),
+            "inquinamento": ("Inquinamento", "Visualizzate le % inquinanti."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
         }
@@ -86,15 +87,135 @@ class DonazioniView(TemplateView):
     model = EmailsEmaildata
     template_name = "core/donazioni.html"
 
+    def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+
+         # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+         path = self.request.path
+         if '/donazioni/' in path:
+            page_type = "donazioni"
+         else:
+            page_type = "default"
+         #page_type = self.request.GET.get("page", "default")
+
+         # Definisci i titoli e le descrizioni in base al tipo di pagina
+         page_titles = {
+             "donazioni": ("Donazioni", "Sostieni i servizi e lo sforzo di Citylog attraverso una donazione."),
+             "default": ("Donazioni", "Sostieni i servizi e lo sforzo di Citylog attraverso una donazione."),
+         }
+
+         # Imposta i valori di default se il tipo non è riconosciuto
+         context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+         context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+         return context
+
 # Vista per la pagina manifesto
 class ManifestoView(TemplateView):
     model = EmailsEmaildata
     template_name = "core/manifesto.html"
 
+    def get_context_data(self, **kwargs):
+           context = super().get_context_data(**kwargs)
+
+           # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+           path = self.request.path
+           if '/manifesto/' in path:
+              page_type = "manifesto"
+           else:
+              page_type = "default"
+           #page_type = self.request.GET.get("page", "default")
+
+           # Definisci i titoli e le descrizioni in base al tipo di pagina
+           page_titles = {
+               "manifesto": ("Manifesto", "I valori che sostengono l'impegno di CityLog."),
+               "default": ("API", "Utilizza gli endpoint di Citylog per estrarre dati e valori."),
+           }
+
+           # Imposta i valori di default se il tipo non è riconosciuto
+           context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+           context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+           return context
+
 # Vista per la pagina regolamento
 class RegoleView(TemplateView):
     model = EmailsEmaildata
     template_name = "core/regole.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/regole/' in path:
+               page_type = "regole"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "regole": ("Regole", "Le poche ma necessarie regole da seguire."),
+                "default": ("Regole", "Regole."),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+# Vista per la pagina regolamento
+class ApiView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/api.html"
+
+    def get_context_data(self, **kwargs):
+          context = super().get_context_data(**kwargs)
+
+          # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+          path = self.request.path
+          if '/api-docs/' in path:
+             page_type = "api"
+          else:
+             page_type = "default"
+          #page_type = self.request.GET.get("page", "default")
+
+          # Definisci i titoli e le descrizioni in base al tipo di pagina
+          page_titles = {
+              "api": ("API", "Utilizza gli endpoint di Citylog per estrarre dati e valori."),
+              "default": ("API", "Utilizza gli endpoint di Citylog per estrarre dati e valori."),
+          }
+
+          # Imposta i valori di default se il tipo non è riconosciuto
+          context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+          context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+          return context
+
+# Vista per la pagina regolamento
+class StatisticheView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/statistiche.html"
+
+    def get_context_data(self, **kwargs):
+           context = super().get_context_data(**kwargs)
+
+           # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+           path = self.request.path
+           if '/statistiche/' in path:
+              page_type = "statistiche"
+           else:
+              page_type = "default"
+           #page_type = self.request.GET.get("page", "default")
+
+           # Definisci i titoli e le descrizioni in base al tipo di pagina
+           page_titles = {
+               "statistiche": ("Statistiche", "Visualizza percentuali-dati-valori ambientali della tua citta+."),
+               "default": ("Statistiche", "Statistiche."),
+           }
+
+           # Imposta i valori di default se il tipo non è riconosciuto
+           context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+           context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+           return context
 
 def facebook_callback(request):
     code = request.GET.get("code")

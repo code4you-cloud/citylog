@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-primary text-center">📊 Statistiche Ambientali</h1>
+    <p class="lead text-center">Analisi dettagliate della situazione ambientale e proiezioni future.</p>
+
+    <div class="alert alert-info text-center">
+        Questa sezione raccoglie dati e previsioni basate sulle segnalazioni e sulle condizioni ambientali attuali.
+    </div>
+
+    <!-- Sezione: Dati Attuali -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white text-center">
+            <h5>🌍 Dati Ambientali Attuali</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="chart-container">
+                <canvas id="chartDatiAttuali"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione: Dati Predittivi -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark text-center">
+            <h5>📈 Previsioni e Andamenti</h5>
+        </div>
+        <div class="card-body text-center">
+            <div class="chart-container">
+                <canvas id="chartPredittivo"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sezione: Analisi per Zone -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white text-center">
+            <h5>📍 Analisi per Zone</h5>
+        </div>
+        <div class="card-body text-center">
+            <select class="form-control mb-3 w-auto mx-auto" id="zoneSelect">
+                <option value="centro">Centro Città</option>
+                <option value="periferia">Periferia</option>
+                <option value="industriale">Zona Industriale</option>
+                <option value="parco">Parco Naturale</option>
+            </select>
+            <div class="chart-container">
+                <canvas id="chartZone"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-5"></div> <!-- Spazio inferiore per bilanciare il layout -->
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function generaDatiCasuali(n, min, max) {
+        return Array.from({ length: n }, () => Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    };
+
+    // Grafico Dati Attuali
+    new Chart(document.getElementById("chartDatiAttuali"), {
+        type: "bar",
+        data: {
+            labels: ["PM2.5", "PM10", "NO2", "CO2", "O3", "Rumore"],
+            datasets: [{
+                label: "Livelli attuali",
+                backgroundColor: "rgba(54, 162, 235, 0.7)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+                data: generaDatiCasuali(6, 10, 100)
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Grafico Previsioni
+    new Chart(document.getElementById("chartPredittivo"), {
+        type: "bar",
+        data: {
+            labels: ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu"],
+            datasets: [{
+                label: "Trend inquinamento",
+                backgroundColor: "rgba(255, 159, 64, 0.7)",
+                borderColor: "rgba(255, 159, 64, 1)",
+                borderWidth: 1,
+                data: generaDatiCasuali(6, 20, 80)
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Grafico Zone
+    let chartZone = new Chart(document.getElementById("chartZone"), {
+        type: "bar",
+        data: {
+            labels: ["Rifiuti", "Qualità Aria", "Verde Urbano", "Rumore"],
+            datasets: [{
+                label: "Dati per zona",
+                backgroundColor: "rgba(75, 192, 192, 0.7)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+                data: generaDatiCasuali(4, 5, 90)
+            }]
+        },
+        options: chartOptions
+    });
+
+    // Aggiornamento dinamico per zone
+    document.getElementById("zoneSelect").addEventListener("change", function () {
+        chartZone.data.datasets[0].data = generaDatiCasuali(4, 5, 90);
+        chartZone.update();
+    });
+
+</script>
+
+<style>
+    .chart-container {
+        width: 100%;
+        max-width: 600px;
+        height: 300px;
+        margin: auto;
+    }
+</style>
+
+{% endblock %}
+

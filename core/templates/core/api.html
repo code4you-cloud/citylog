@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-primary">CityLog API</h1>
+    <p class="lead">Scopri come integrare gli endpoint di CityLog nei tuoi progetti.</p>
+
+    <div class="alert alert-info">
+        Le API di CityLog consentono di accedere ai dati sulle segnalazioni pubbliche e integrarli in altre applicazioni, analisi o dashboard.
+    </div>
+
+    <!-- Sezione: Cos'è CityLog API -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>📌 Cos'è CityLog API?</h4>
+        </div>
+        <div class="card-body">
+            <p>CityLog offre un set di API REST per:</p>
+            <ul>
+                <li>Ottenere l'elenco delle segnalazioni.</li>
+                <li>Inviare nuove segnalazioni.</li>
+                <li>Recuperare informazioni geolocalizzate.</li>
+                <li>Effettuare analisi sui dati raccolti.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sezione: Endpoint principali -->
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4>🔗 Endpoint principali</h4>
+        </div>
+        <div class="card-body">
+            <p>Gli endpoint principali disponibili:</p>
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Metodo</th>
+                        <th>Endpoint</th>
+                        <th>Descrizione</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td><code>/api/reports/</code></td>
+                        <td>Restituisce l'elenco delle segnalazioni pubbliche.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-primary">POST</span></td>
+                        <td><code>/api/reports/</code></td>
+                        <td>Permette di inviare una nuova segnalazione.</td>
+                    </tr>
+                    <tr>
+                        <td><span class="badge badge-success">GET</span></td>
+                        <td><code>/api/reports/{id}/</code></td>
+                        <td>Restituisce i dettagli di una specifica segnalazione.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Sezione: Esempi di utilizzo -->
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4>📡 Esempi di utilizzo</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>1. Ottenere l'elenco delle segnalazioni con `curl`:</strong></p>
+            <pre class="bg-light p-3"><code>curl -X GET https://citylog.cloud/api/reports/</code></pre>
+
+            <p><strong>2. Inviare una nuova segnalazione con `curl`:</strong></p>
+            <pre class="bg-light p-3"><code>
+curl -X POST https://citylog.cloud/api/reports/ \
+     -H "Content-Type: application/json" \
+     -d '{"latitude": "45.4642", "longitude": "9.1900", "image_url": "https://example.com/image.jpg"}'
+            </code></pre>
+        </div>
+    </div>
+
+    <!-- Sezione: Autenticazione -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h4>🔑 Autenticazione</h4>
+        </div>
+        <div class="card-body">
+            <p>Per alcune operazioni, è necessario autenticarsi tramite un <strong>API Key</strong>.</p>
+            <p><strong>Esempio di richiesta autenticata:</strong></p>
+            <pre class="bg-light p-3"><code>
+curl -X GET https://citylog.cloud/api/reports/ \
+     -H "Authorization: Token YOUR_API_KEY"
+            </code></pre>
+            <p>Puoi ottenere un'API Key registrandoti su CityLog.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-5"></div> <!-- Spazio inferiore uguale a quello superiore -->
+</div>
+{% endblock %}
+

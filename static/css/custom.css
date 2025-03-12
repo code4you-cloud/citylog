@@ -1,0 +1,11 @@
+.donate-btn:hover {
+    transform: scale(1.1);
+    transition: 0.2s ease-in-out;
+}
+
+input#custom-amount {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+

@@ -32,7 +32,6 @@
 
                     </p>
 
-                    <!--p class="lead mb-3"><span>Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria citt&agrave;. Tramite <a class="font-weight-bold text-white" href="http://themestr.app"> citylog app</a>, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale.</p-->
                 </div>
                 <div class="col-xl-4 col-lg-6 col mr-auto order-1 order-lg-last align-items-center justify-content-center justify-content-lg-end d-flex">
                      <div class="img-fluid text-white">
@@ -47,6 +46,75 @@
                         <circle cx="144" cy="288" r="32" stroke-linecap="round" stroke-linejoin="round"></circle>
                         <circle cx="368" cy="288" r="32" stroke-linecap="round" stroke-linejoin="round"></circle>
                         <path d="M144 320h224" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "donazioni" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <path d="M256 416c-40 0-94-36-126-68-30-30-46-68-46-104 0-68 58-126 126-126 26 0 51 8 72 23" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M286 141c21-15 46-23 72-23 68 0 126 58 126 126 0 36-16 74-46 104-32 32-86 68-126 68" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M320 220l-64 64-64-64" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M256 120v164" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "manifesto" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <path d="M256 128v256" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M176 208l80-80l80 80" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <circle cx="256" cy="128" r="32" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <path d="M192 384h128" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M160 384c0-24 43.2-48 96-48s96 24 96 48" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "regole" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <rect x="128" y="128" width="256" height="256" rx="16" ry="16" stroke-linecap="round" stroke-linejoin="round"></rect>
+                          <path d="M176 192h160" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M176 256h160" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M176 320h160" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <circle cx="160" cy="192" r="8" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <circle cx="160" cy="256" r="8" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <circle cx="160" cy="320" r="8" stroke-linecap="round" stroke-linejoin="round"></circle>
+                        </svg>
+                        {% elif page_type == "statistiche" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <path d="M128 352v32" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M192 320v64" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M256 256v128" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M320 288v96" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M384 192v192" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M96 384h320" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M96 128h320" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <circle cx="160" cy="176" r="24" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <circle cx="256" cy="224" r="24" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <circle cx="352" cy="160" r="24" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <path d="M160 176l96 48l96-64" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "inquinamento" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <path d="M128 288c0-48 58-96 128-96s128 48 128 96" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M128 288c0 32 58 64 128 64s128-32 128-64" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M200 224c-16-16-16-64 0-80s48-16 64 0" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M248 224c16-16 16-64 0-80s-48-16-64 0" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M176 240c-21.3 0-40 12-40 32s18.7 48 40 48" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M336 240c21.3 0 40 12 40 32s-18.7 48-40 48" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "buche" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <path d="M128 224h256" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M144 224c0 0 16 80 112 80s112-80 112-80" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M144 224l48-48" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M368 224l-48-48" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <circle cx="256" cy="304" r="24" stroke-linecap="round" stroke-linejoin="round"></circle>
+                          <path d="M256 176v-48" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M256 176l-32-16" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M256 176l32-16" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M128 384h256" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                        {% elif page_type == "api" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
+                          <rect x="128" y="160" width="256" height="192" rx="16" ry="16" stroke-linecap="round" stroke-linejoin="round"></rect>
+                          <path d="M176 240l32 32l-32 32" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M336 240l-32 32l32 32" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M240 224l32 64" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M128 352v32a32 32 0 0 0 32 32h192a32 32 0 0 0 32-32v-32" stroke-linecap="round" stroke-linejoin="round"></path>
+                          <path d="M128 160v-32a32 32 0 0 1 32-32h192a32 32 0 0 1 32 32v32" stroke-linecap="round" stroke-linejoin="round"></path>
                         </svg>
                         {% elif page_type == "rifiuti" %}
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="240" height="240" fill="none" stroke="currentColor" stroke-width="32">
@@ -80,25 +148,20 @@
             <div class="navbar-collapse collapse justify-content-center" id="collapsingNavbar">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#buttons">Buttons</a>
+                        <a class="nav-link" href="{% url 'core:manifesto-view' %}">Manifesto</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#navs">Navs</a>
+                        <a class="nav-link" href="{% url 'core:regole-view' %}">Regole</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#cards">Cards</a>
+                        <a class="nav-link" href="#" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
+                            API
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#modals">Modals</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#typography">Typography</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#forms">Forms</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#grid">Grid</a>
+                        <a class="nav-link" href="#" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
+                            Statistiche
+                        </a>
                     </li>
                     <li class="nav-item dropdown">
                         {% if not user.is_authenticated %}
@@ -139,11 +202,10 @@
                 <div class="col-6 col-md-6 col-lg-3 mb-2">
                     <h6 class="text-uppercase">Service</h6>
                     <ul class="nav flex-column">
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=rifiuti" title="Rifiuti">Rifiuti</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=ambiente" title="Ambiente">Ambiente</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}typo=buche" title="Buche">Buche</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=inquinamento" title="Buche">Inquinamento</a></li>
-                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:manifesto-view' %}">Manifesto</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=rifiuti" title="Rifiuti">Log.Rifiuti</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=ambiente" title="Ambiente">Log.Ambiente</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=buche" title="Buche">Log.Buche</a></li>
+                        <li><a class="text-white" target="ext" rel="nofollow" href="{% url 'core:segnalazioni-list' %}?typo=inquinamento" title="Buche">Log.O2</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-6 col-lg-3 mb-2">
@@ -172,5 +234,13 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="{% static "js/scripts.js" %}"></script>
     <script src="{% static "js/donazioni.js" %}"></script>
+    <script>
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover({
+            trigger: 'focus',  // Mostra il popover quando il link è cliccato
+            placement: 'bottom' // Posizione sotto il link
+        });
+    });
+    </script>
 </body>
 </html>
