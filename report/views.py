@@ -240,6 +240,15 @@ class ReportListView(ListView):
     context_object_name = "reports"  # Nome del contesto nel template
     paginate_by = 20  # Opzionale: paginazione
 
+    def get_queryset(self):
+        # Ottieni il queryset di base
+        queryset = super().get_queryset()
+
+        # Ordina i report per image_time in ordine decrescente (dal più recente al più vecchio)
+        queryset = queryset.order_by('-image_time')
+
+        return queryset
+
     def get_context_data(self, **kwargs):
          context = super().get_context_data(**kwargs)
 
