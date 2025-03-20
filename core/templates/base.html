@@ -235,12 +235,22 @@
     <script src="{% static "js/scripts.js" %}"></script>
     <script src="{% static "js/donazioni.js" %}"></script>
     <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-toggle="popover"]'));
+        popoverTriggerList.map(function (popoverTriggerEl) {
+            new bootstrap.Popover(popoverTriggerEl);
+        });
+    });
+    </script>
+
+
+    <!--script>
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover({
             trigger: 'focus',  // Mostra il popover quando il link è cliccato
             placement: 'bottom' // Posizione sotto il link
         });
     });
-    </script>
+    </script-->
 </body>
 </html>
