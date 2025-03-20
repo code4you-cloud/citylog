@@ -16,6 +16,7 @@
                     <th>Image.time</th>
                     <th>Immagine.id</th>
                     <th>Typo</th>
+                    <th>User</th>
                     <th>Dettagli</th>
                 </tr>
             </thead>
@@ -30,20 +31,25 @@
                     <td>{{ segnalazione.image_time|date:"d/m/Y H:i" }}</td>
                     <td>{{ segnalazione.image_id }}</td>
                     <td><span class="badge badge-info">{{ segnalazione.typo }}</span></td>
+                    <td>
+                    <!-- Icona utente Facebook -->
+                         {% if request.session.facebook_picture %}
+                             <img src="{{ request.session.facebook_picture }}" alt="Profilo" class="rounded-circle me-1" style="width: 30px; height: 30px;">
+                         {% else %}
+                             <i class="fas fa-user-circle fa-lg text-secondary me-1"></i>
+                         {% endif %}
+                         <!-- Nome utente -->
+                         {{ request.session.facebook_name|default:"Anonimo" }}
+                    </td>
                     <td style="width: 100px; height: 100px;">
-                             {% if segnalazione.status == '0' %}
-                             <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ segnalazione.latitude }}&lon={{ segnalazione.longitude }}&zoom=15&address={{ segnalazione.address }}&image_url=https://image.citylog.cloud{{ segnalazione.image_url }}" target="_blank">
-                                 <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
-                             </a>
-                             {% else %}
-                                 <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
-                             {% endif %}
-                         </td>
-                    <!--td>
-                        <a href="{% url 'core:segnalazione-detail' segnalazione.pk %}" class="btn btn-sm btn-primary">
-                            Dettagli
+                        {% if segnalazione.status == '0' %}
+                        <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ segnalazione.latitude }}&lon={{ segnalazione.longitude }}&zoom=15&address={{ segnalazione.address }}&image_url=https://image.citylog.cloud{{ segnalazione.image_url }}" target="_blank">
+                            <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
                         </a>
-                    </td-->
+                        {% else %}
+                            <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>

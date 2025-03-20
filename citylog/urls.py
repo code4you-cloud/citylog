@@ -18,11 +18,17 @@ from django.urls import path, include
 
 from django.conf.urls.static import static
 from django.conf import settings
+from django.contrib.auth.views import LogoutView
+
+from core.views import facebook_callback, dashboard
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('report/', include('report.urls', namespace='report')),
+    path("facebook/callback/", facebook_callback, name="facebook-callback"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("dashboard/", dashboard, name="dashboard"),
 ]
 
 if settings.DEBUG:

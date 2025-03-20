@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Segnalazione Inviata{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="jumbotron text-center my-5">
+        <h1 class="display-4">Grazie!</h1>
+        <p class="lead">La tua segnalazione è stata inviata con successo.</p>
+
+        <hr class="my-4">
+        <p>La tua segnalazione verrà esaminata dal nostro team ed attualmente si trova in uno stato di pending.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'reports:create_report' %}" role="button">Invia un'altra segnalazione</a>
+    </div>
+</div>
+{% endblock %}

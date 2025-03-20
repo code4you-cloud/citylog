@@ -7,6 +7,17 @@
 <div class="container">
     <div class="form-container mx-auto my-5 p-4 shadow rounded" style="max-width: 600px;">
         <h2 class="text-center mb-4">Invia segnalazione</h2>
+
+        <!-- Legenda -->
+        <div class="alert alert-info">
+            <strong>Legenda Tipologie:</strong>
+            <ul>
+                <li><strong>Rifiuti:</strong> Seleziona questa voce per segnalare la presenza di rifiuti abbandonati.</li>
+                <li><strong>Tronchi:</strong> Seleziona questa voce per segnalare il taglio di alberi da fusto.</li>
+                <li><strong>Censimento:</strong> Seleziona questa voce per segnalare alberi, aree verdi o situazioni ambientali da censire.</li>
+                <li><strong>Piantumazione:</strong> Seleziona questa voce per segnalare recenti piantumazioni oppure proporre la piantumazione di nuovi alberi o piante.</li>
+            </ul>
+        </div>
         
         <form id="uploadForm" method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -26,9 +37,25 @@
                 <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
                 {% endif %}
             </div>
-            
+
             <div class="form-group">
-                <label for="{{ form.upload_image.id_for_label }}">Immagine (opzionale)</label>
+                <label for="{{ form.typo.id_for_label }}" class="required-field">Tipologia</label>
+                {{ form.typo }}
+                {% if form.typo.errors %}
+                <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="required-field">Descrizione</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.upload_image.id_for_label }}">Immagine</label>
                 <div class="custom-file">
                     {{ form.upload_image }}
                     <label class="custom-file-label" for="{{ form.upload_image.id_for_label }}">Scegli file...</label>
@@ -38,8 +65,16 @@
                 {% endif %}
                 <img id="imagePreview" class="preview-image mt-2 img-fluid rounded" src="#" alt="Anteprima immagine" style="display: none; max-height: 300px;">
                 <small class="form-text text-muted">Se l'immagine contiene dati GPS, verranno utilizzati automaticamente.</small>
+
+                <!-- Checkbox per accettazione regolamento -->
+                <div class="form-check mt-1">
+                    <input class="form-check-input" type="checkbox" id="accept_rules" required>
+                    <label class="form-check-label" for="accept_rules">
+                        Dichiaro di aver letto e accettato il <a href="{% url 'core:regole-view' %}" target="_blank">Regolamento d'Uso</a>.
+                    </label>
+                </div>
             </div>
-            
+
             {% if form.non_field_errors %}
             <div class="alert alert-danger">
                 {% for error in form.non_field_errors %}

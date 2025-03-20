@@ -2,7 +2,7 @@
 
 import datetime
 from django.db import migrations, models
-import reportweb.models
+import report.models
 import uuid
 
 
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('image_time', models.DateTimeField(default=datetime.datetime.now)),
                 ('image_id', models.CharField(default=uuid.uuid4, max_length=100, unique=True)),
                 ('image_url', models.URLField(blank=True, null=True)),
-                ('image_file', models.ImageField(blank=True, null=True, upload_to=reportweb.models.get_image_path)),
+                ('image_file', models.ImageField(blank=True, null=True, upload_to=report.models.get_image_path)),
                 ('status', models.CharField(choices=[('pending', 'In attesa'), ('approved', 'Approvato'), ('rejected', 'Rifiutato')], default='pending', max_length=20)),
                 ('typo', models.CharField(choices=[('web', 'Web'), ('email', 'Email'), ('app', 'Applicazione')], default='web', max_length=20)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),

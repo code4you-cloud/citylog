@@ -97,6 +97,28 @@
                      </div>
                  </div>
             </div>
+            <!--a href="https://www.facebook.com/v17.0/dialog/oauth?
+                client_id=1233024841238630
+                &redirect_uri=https://citylog.cloud/facebook/callback/
+                &scope=email,public_profile"
+                class="btn btn-primary">
+                <i class="fab fa-facebook"></i> Accedi con Facebook
+            </a-->
+            <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email"      class="btn btn-primary">
+            <i class="fab fa-facebook"></i> Login con Facebook
+             </a>
+
+             {% if request.user.is_authenticated %}
+                <button class="btn btn-primary" disabled>
+                    <i class="fab fa-facebook"></i> Sei già connesso con Facebook
+                </button>
+            {% else %}
+                <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email"
+                   class="btn btn-primary">
+                    <i class="fab fa-facebook"></i> Login con Facebook
+                </a>
+            {% endif %}
+
         </section>
     </main>
     {% endblock %}

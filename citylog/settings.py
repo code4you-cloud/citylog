@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'report',
+    'utilities',
 ]
 
 MIDDLEWARE = [
@@ -157,6 +158,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# to send email
 EMAIL_HOST = 'smtp.code4you.cloud'
 EMAIL_HOST_USER = 'info@citylog.cloud'
 EMAIL_HOST_PASSWORD = 'Blacking1'
@@ -164,3 +166,11 @@ FROM_EMAIL = 'noreply@citylof.cloud'
 SERVER_EMAIL = 'noreply@citylog.cloud'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = False
+
+# facebook login
+FACEBOOK_APP_ID = "1233024841238630"
+FACEBOOK_APP_SECRET = "2e4014a04501a202e71b9a5679155de5"
+FACEBOOK_REDIRECT_URI = "https://citylog.cloud/facebook/callback/"
+
+# redirect to login facebook
+LOGIN_URL = '/'

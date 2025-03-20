@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="mt-3">
+                    {% if request.session.facebook_picture %}
+                        <img src="{{ request.session.facebook_picture }}" class="card-img-top rounded-circle mx-auto" style="width: 80px;">
+                    {% else %}
+                        <i class="fas fa-user-circle fa-5x text-secondary"></i>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ user.first_name }}</h5>
+                    <p class="card-text">{{ user.email }}</p>
+                    <small class="text-muted">Account Facebook collegato</small>
+                    <div class="mt-2">
+                        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-primary text-white">Benvenuto nella tua Dashboard</div>
+                <div class="card-body">
+                    <p class="card-text">Qui puoi gestire le tue segnalazioni e impostazioni.</p>
+                    <a href="{% url 'reports:create_report' %}" class="btn btn-outline-primary">Vai alle segnalazioni</a>
+                </div>
+            </div>
+
+            <!-- Sezione attività utente -->
+            <div class="card mt-4">
+                <div class="card-header bg-secondary text-white">Le tue segnalazioni</div>
+                <div class="card-body">
+                    {% if reports %}
+                        <div class="row">
+                            {% for report in reports %}
+                                <div class="col-md-4 mb-3">
+                                    <div class="card">
+                                        <img src="{{ MEDIA_URL }}{{ report.image_url }}" class="card-img-top" alt="Segnalazione">
+                                        <div class="card-body">
+                                            <!-- Mostra l'icona dell'utente Facebook se disponibile -->
+                                             <div class="d-flex align-items-center">
+                                                 {% if request.session.facebook_picture %}
+                                                     <img src="{{ request.session.facebook_picture }}" class="rounded-circle" width="40" height="40" alt="User Image">
+                                                 {% else %}
+                                                     <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                                                 {% endif %}
+                                                 <h6 class="ms-2">{{ request.session.facebook_name }}</h6>
+                                             </div>
+
+                                            <p class="card-text"><strong>Indirizzo:</strong> {{ report.address }}</p>
+                                            <p class="card-text"><strong>Data:</strong> {{ report.image_time }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Non hai ancora inviato segnalazioni.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Aggiunto lo stesso margine inferiore del top -->
+<div class="mt-5"></div>
+{% endblock %}
