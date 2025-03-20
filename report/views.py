@@ -6,16 +6,24 @@ import logging
 import os
 import requests
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.conf import settings
+from django.urls import reverse
+
 from .forms import ReportWebForm
-from .models import Report
+from .models import Report, get_image_path  # Assicurati di importarlo correttamente
+#from utilities.ai_utils import classify_image
+
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.views.generic import ListView
+from django.contrib import messages
+
 from datetime import datetime
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
-
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +115,7 @@ def geocode_city(city):
         logger.error(f"Errore nella geocodifica: {e}")
         return None
 
+@login_required
 @require_http_methods(["GET", "POST"])
 def create_report(request):
     if request.method == "POST":
@@ -115,6 +124,7 @@ def create_report(request):
         if form.is_valid():
             city = form.cleaned_data['city']
             address = form.cleaned_data['address']
+            description = form.cleaned_data['description']
             upload_image = form.cleaned_data.get('upload_image')
 
             logger.info(f"Ricevuta richiesta freeweb con city={city}, address={address}")
@@ -167,18 +177,31 @@ def create_report(request):
 
             # Crea e salva il report
             report = Report(
+                user=request.user,  # 🔹 Associa il report all'utente autenticato
                 latitude=latitude,
                 longitude=longitude,
                 city=city or 'Sconosciuta',
                 address=address,
                 image_time=image_time,
                 image_id=image_id,
-                image_url=None,
+                #image_url=None,
+                #image_url=upload_image if upload_image else None,
                 image_file=upload_image if upload_image else None,
                 status="pending",
                 typo="web",
+                description=description,
             )
+
+            # Classificazione AI Enable AI
+            #categoria_predetta = classify_image(segnalazione.immagine.path)
+            #report.typo = categoria_predetta
+
             report.save()
+
+            # Ora assegna il valore corretto a image_url e salva di nuovo
+            if upload_image:
+                report.image_url = f"{get_image_path(report, upload_image.name)}"
+                report.save()
 
             # Pulisci il file temporaneo se necessario
             if file_path and os.path.exists(file_path):
@@ -195,9 +218,11 @@ def create_report(request):
                 })
 
             # Altrimenti, reindirizza con messaggio di successo
-            from django.contrib import messages
             messages.success(request, 'Segnalazione inviata con successo!')
-            return redirect('report_success')
+
+            # Reindirizza alla pagina di successo con l'ID del report
+            return redirect(reverse('reports:report_success', kwargs={'report_id': report.id}))
+            #return redirect('reports:report_success')
 
         else:
             # Se ci sono errori di validazione
@@ -212,5 +237,53 @@ def create_report(request):
 
     return render(request, 'report/create_report.html', {'form': form})
 
-def report_success(request):
-    return render(request, 'report/report_success.html')
+def report_success(request, report_id):
+    # Ottieni il report dal database (opzionale, se vuoi mostrare ulteriori dettagli)
+    report = get_object_or_404(Report, id=report_id)
+
+    # Passa l'ID troncato (o altri dettagli) al template
+    image_id = str(report.image_id)[:6]  # Tronca l'ID ai primi 6 caratteri
+    context = {
+        'report_id': report.id,
+        'image_id': report.image_id,
+    }
+
+    return render(request, 'report/report_success.html', context)
+
+class ReportListView(ListView):
+    model = Report
+    template_name = "report/report_list.html"  # Template da usare
+    context_object_name = "reports"  # Nome del contesto nel template
+    paginate_by = 20  # Opzionale: paginazione
+
+    def get_queryset(self):
+        # Ottieni il queryset di base
+        queryset = super().get_queryset()
+
+        # Ordina i report per image_time in ordine decrescente (dal più recente al più vecchio)
+        queryset = queryset.order_by('-image_time')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+         context = super().get_context_data(**kwargs)
+
+         # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+         page_type = self.request.GET.get("typo", "default")
+
+         # Definisci i titoli e le descrizioni in base al tipo di pagina
+         page_titles = {
+             "ambiente": ("Monitoraggio Ambientale", "Scopri le segnalazioni ambientali nella tua città."),
+             "rete": ("Rete Stradale", "Partecipa alla segnalazione della rete stradale."),
+             "rifiuti": ("Monitoraggio Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
+             "web": ("Segnalazioni da Sito", "Partecipa come cittadino alle segnalazioni della tua citta+."),
+             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
+                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
+         }
+
+         # Imposta i valori di default se il tipo non è riconosciuto
+         context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+         context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+         context["MEDIA_URL"] = settings.MEDIA_URL  # Passa MEDIA_URL al template
+         return context
+

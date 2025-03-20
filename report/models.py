@@ -7,6 +7,7 @@ import uuid
 import os
 from datetime import datetime
 from django.db import models
+from django.contrib.auth.models import User
 
 def get_image_path(instance, filename):
     # Genera un percorso univoco per ogni immagine caricata
@@ -22,24 +23,33 @@ class Report(models.Model):
     )
 
     TYPE_CHOICES = (
-        ('web', 'Web'),
-        ('email', 'Email'),
-        ('app', 'Applicazione'),
+        ('rifiuti', 'Rifiuti'),
+        ('tronchi', 'Tronchi'),
+        ('censimento', 'Censimento'),
+        ('piantumazione', 'Piantumazione'),
     )
 
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Nuovo campo
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     city = models.CharField(max_length=100)
     address = models.CharField(max_length=255)
     image_time = models.DateTimeField(default=datetime.now)
     image_id = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
-    image_url = models.URLField(null=True, blank=True)
+    image_url = models.CharField(max_length=255,null=True, blank=True)
     image_file = models.ImageField(upload_to=get_image_path, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     typo = models.CharField(max_length=20, choices=TYPE_CHOICES, default='web')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Nuovo campo descrizione (breve)
+    description = models.CharField(
+        max_length=200,  # Lunghezza massima ridotta per una breve descrizione
+        blank=True,      # Opzionale: permette di lasciare il campo vuoto
+        null=True,       # Opzionale: permette di salvare NULL nel database
+        help_text="Inserisci una breve descrizione dell'upload (max 200 caratteri)."  # Testo di aiuto
+    )
 
     def __str__(self):
         return f"Report {self.id} - {self.city} ({self.status})"

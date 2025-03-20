@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-primary">{{ page_title }} - <h3 class="text-secondary">{{ typo|default:"anything" }}</h3></h1>
+
+    <div class="table-responsive"> <!-- Questo rende la tabella scorrevole su schermi piccoli -->
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>User</th>
+                    <th>ID</th>
+                    <th>Latitudine</th>
+                    <th>Longitudine</th>
+                    <th>Città</th>
+                    <th>Indirizzo</th>
+                    <th>Data immagine</th>
+                    <th>Immagine ID</th>
+                    <th>Status</th>
+                    <th>Anteprima</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>
+                        <!-- Icona utente Facebook -->
+                        {% if request.session.facebook_picture %}
+                            <img src="{{ request.session.facebook_picture }}" alt="Profilo" class="rounded-circle me-1" style="width: 30px; height: 30px;">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-lg text-secondary me-1"></i>
+                        {% endif %}
+                        <!-- Nome utente -->
+                        {{ request.session.facebook_name|default:"Anonimo" }}
+                    </td>
+
+                    <td>{{ report.id }}</td>
+                    <td>{{ report.latitude|default:"-" }}</td>
+                    <td>{{ report.longitude|default:"-" }}</td>
+                    <td>{{ report.city|default:"-" }}</td>
+                    <td><a href="{{ MEDIA_URL }}{{ report.image_file }}">{{ report.address|default:"-" }}</a></td>
+                    <td>{{ report.image_time|date:"d/m/Y H:i" }}</td>
+                    <td>{{ report.image_id|default:"-" }}</td>
+                    <td><span class="badge badge-info">{{ report.status|default:"-" }}</span></td>
+                    <td style="width: 100px; height: 100px;">
+                        {% if report.status == 'pending' %}
+                        <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ report.latitude }}&lon={{ report.longitude                  }}&zoom=15&address={{ report.address }}&image_url=https://image.citylog.cloud{{ MEDIA_URL }}{{ report.image_url }}" target="_blank">
+                               <img src="{{ MEDIA_URL }}{{ report.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
+                           </a>
+                        {% else %}
+                            <img src="{{ report.image_file }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">Nessun report disponibile.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> <!-- Fine div table-responsive -->
+</div>
+{% endblock %}
