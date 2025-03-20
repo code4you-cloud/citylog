@@ -43,6 +43,13 @@ class Report(models.Model):
     typo = models.CharField(max_length=20, choices=TYPE_CHOICES, default='web')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    # Nuovo campo descrizione (breve)
+    description = models.CharField(
+        max_length=200,  # Lunghezza massima ridotta per una breve descrizione
+        blank=True,      # Opzionale: permette di lasciare il campo vuoto
+        null=True,       # Opzionale: permette di salvare NULL nel database
+        help_text="Inserisci una breve descrizione dell'upload (max 200 caratteri)."  # Testo di aiuto
+    )
 
     def __str__(self):
         return f"Report {self.id} - {self.city} ({self.status})"

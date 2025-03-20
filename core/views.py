@@ -38,15 +38,6 @@ class RifiutiListView(ListView):
     template_name = "core/rifiuti_list.html"
     context_object_name = "segnalazioni"
 
-    def get_queryset(self):
-        # Ottieni il queryset di base
-        queryset = super().get_queryset()
-
-        # Ordina i report per image_time in ordine decrescente (dal più recente al più vecchio)
-        queryset = queryset.order_by('-image_time')
-
-        return queryset
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -77,6 +68,10 @@ class RifiutiListView(ListView):
             #queryset = queryset.filter(typo=tipo)
         else:
             queryset = queryset.filter(typo=tipo)
+
+        # Ordina il queryset per image_time in ordine decrescente
+        queryset = queryset.order_by('-image_time')
+
         return queryset
 
 
@@ -276,49 +271,6 @@ def facebook_callback(request):
     login(request, user)
     return redirect("dashboard")  # Reindirizza alla dashboard
 
-
-def facebook_callback_(request):
-    code = request.GET.get("code")
-
-    if not code:
-        return redirect("core:home")  # Se manca il codice, rimanda alla home
-
-    # Scambio del code con un access_token
-    token_url = f"https://graph.facebook.com/v17.0/oauth/access_token"
-    params = {
-        "client_id": settings.FACEBOOK_APP_ID,
-        "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
-        "client_secret": settings.FACEBOOK_APP_SECRET,
-        "code": code,
-    }
-    response = requests.get(token_url, params=params)
-    token_data = response.json()
-
-    access_token = token_data.get("access_token")
-    if not access_token:
-        return redirect("core:home")  # Se manca il token, torna alla home
-
-    # Ottenere i dati dell'utente
-    user_info_url = "https://graph.facebook.com/me"
-    user_params = {
-        "fields": "id,name,email",
-        "access_token": access_token,
-    }
-    user_response = requests.get(user_info_url, params=user_params)
-    user_data = user_response.json()
-
-    facebook_id = user_data.get("id")
-    name = user_data.get("name")
-    email = user_data.get("email")
-
-    if not email:
-        return redirect("core:home")  # Facebook potrebbe non restituire l'email
-
-    # Creazione o autenticazione dell'utente
-    user, created = User.objects.get_or_create(username=email, defaults={"first_name": name, "email": email})
-    login(request, user)  # Login automatico
-
-    return redirect("core:home")  # Reindirizza alla home dopo il login
 
 @login_required
 def dashboard(request):

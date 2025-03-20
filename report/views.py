@@ -6,10 +6,12 @@ import logging
 import os
 import requests
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
+from django.urls import reverse
+
 from .forms import ReportWebForm
 from .models import Report, get_image_path  # Assicurati di importarlo correttamente
 #from utilities.ai_utils import classify_image
@@ -122,6 +124,7 @@ def create_report(request):
         if form.is_valid():
             city = form.cleaned_data['city']
             address = form.cleaned_data['address']
+            description = form.cleaned_data['description']
             upload_image = form.cleaned_data.get('upload_image')
 
             logger.info(f"Ricevuta richiesta freeweb con city={city}, address={address}")
@@ -186,6 +189,7 @@ def create_report(request):
                 image_file=upload_image if upload_image else None,
                 status="pending",
                 typo="web",
+                description=description,
             )
 
             # Classificazione AI Enable AI
@@ -215,7 +219,10 @@ def create_report(request):
 
             # Altrimenti, reindirizza con messaggio di successo
             messages.success(request, 'Segnalazione inviata con successo!')
-            return redirect('reports:report_success')
+
+            # Reindirizza alla pagina di successo con l'ID del report
+            return redirect(reverse('reports:report_success', kwargs={'report_id': report.id}))
+            #return redirect('reports:report_success')
 
         else:
             # Se ci sono errori di validazione
@@ -230,9 +237,18 @@ def create_report(request):
 
     return render(request, 'report/create_report.html', {'form': form})
 
-def report_success(request):
-    return render(request, 'report/report_success.html')
+def report_success(request, report_id):
+    # Ottieni il report dal database (opzionale, se vuoi mostrare ulteriori dettagli)
+    report = get_object_or_404(Report, id=report_id)
 
+    # Passa l'ID troncato (o altri dettagli) al template
+    image_id = str(report.image_id)[:6]  # Tronca l'ID ai primi 6 caratteri
+    context = {
+        'report_id': report.id,
+        'image_id': report.image_id,
+    }
+
+    return render(request, 'report/report_success.html', context)
 
 class ReportListView(ListView):
     model = Report

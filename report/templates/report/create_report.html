@@ -47,6 +47,14 @@
             </div>
 
             <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="required-field">Descrizione</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
                 <label for="{{ form.upload_image.id_for_label }}">Immagine</label>
                 <div class="custom-file">
                     {{ form.upload_image }}

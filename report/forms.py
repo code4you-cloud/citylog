@@ -27,6 +27,16 @@ class ReportWebForm(forms.Form):
         })
     )
 
+    # Nuovo campo descrizione (breve)
+    description = forms.CharField(
+        max_length=200,  # Lunghezza massima ridotta per una breve descrizione
+        required=False,  # Opzionale: permette di lasciare il campo vuoto
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Inserisci una breve descrizione dell\'upload (max 200 caratteri)...'
+        })
+    )
+
     def clean(self):
         cleaned_data = super().clean()
         city = cleaned_data.get('city')
