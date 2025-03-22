@@ -42,14 +42,32 @@
                     <td>{{ report.image_time|date:"d/m/Y H:i" }}</td>
                     <td>{{ report.image_id|default:"-" }}</td>
                     <td><span class="badge badge-info">{{ report.status|default:"-" }}</span></td>
-                    <td style="width: 100px; height: 100px;">
-                        {% if report.status == 'pending' %}
-                        <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ report.latitude }}&lon={{ report.longitude                  }}&zoom=15&address={{ report.address }}&image_url=https://image.citylog.cloud{{ MEDIA_URL }}{{ report.image_url }}" target="_blank">
-                               <img src="{{ MEDIA_URL }}{{ report.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
-                           </a>
-                        {% else %}
-                            <img src="{{ report.image_file }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
-                        {% endif %}
+                    <td style="width: 100px; height: 100px; text-align: center; vertical-align: middle;">
+                    {% if report.user == request.user or request.user.is_superuser %}
+                        <div style="margin-top: 5px;">
+                        <button class="btn btn-danger delete-btn" data-report-id="{{ report.id }}">
+                            🗑 Elimina
+                        </button>
+                        </div>
+                    {% endif %}
+                    {% if report.status == 'pending' %}
+                        <div style="position: relative;">
+                            <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ report.latitude }}&lon={{ report.longitude }}&zoom=15&address={{ report.address }}&image_url=https://image.citylog.cloud{{ MEDIA_URL }}{{ report.image_url }}" target="_blank">
+                                <img src="{{ MEDIA_URL }}{{ report.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;" />
+                            </a>
+                            {% if report.user == request.user or request.user.is_superuser %}
+                            <div style="margin-top: 5px;">
+                                <button class="btn btn-success btn-sm confirm-btn" data-report-id="{{ report.id }}">
+                                    ✅ Conferma
+                                </button>
+                                <span class="badge badge-secondary" id="confirm-count-{{ report.id }}">{{ report.confirmations.count }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <img src="{{ report.image_file }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;" />
+                        <span class="badge badge-success" style="display: block; margin-top: 5px;">Verificata ✅</span>
+                    {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -61,4 +79,74 @@
         </table>
     </div> <!-- Fine div table-responsive -->
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Conferma segnalazione
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.addEventListener("click", function (event) {
+            if (event.target.classList.contains("confirm-btn")) {
+                let reportId = event.target.getAttribute("data-report-id");
+
+                console.log("Conferma cliccata per report ID:", reportId); // Debug
+
+                fetch(`/report/confirm/${reportId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "same-origin",
+                    body: JSON.stringify({})
+                })
+                //.then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => { throw new Error(data.error); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert("Segnalazione confermata!");
+                    location.reload();
+                })
+                .catch(error => {
+                    alert(`⚠️ Errore: ${error.message}`);  // 🛑 Mostra l'errore all'utente
+                });
+                //.catch(error => console.error("Errore:", error));
+            }
+        });
+    });
+</script>
+<script>
+    // cancellazione segnalazione
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                if (!confirm("Sei sicuro di voler eliminare questa segnalazione?")) return;
+
+                const reportId = this.dataset.reportId;
+                //let reportId = event.target.getAttribute("data-report-id");
+                
+                console.log("Cancellazione cliccata per report ID:", reportId); // Debug
+                fetch(`/report/delete_report/${reportId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        alert(data.message);
+                        location.reload();  // Ricarica la pagina dopo l'eliminazione
+                    }
+                })
+                .catch(error => console.error("Errore:", error));
+            });
+        });
+    });
+</script>
 {% endblock %}

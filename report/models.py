@@ -50,6 +50,21 @@ class Report(models.Model):
         null=True,       # Opzionale: permette di salvare NULL nel database
         help_text="Inserisci una breve descrizione dell'upload (max 200 caratteri)."  # Testo di aiuto
     )
+    confirmations = models.ManyToManyField(User, related_name="confirmed_reports", blank=True)
+
+    def confirm_report(self, user):
+        """Aggiunge una conferma e verifica la segnalazione se necessario."""
+        self.confirmations.add(user)
+        if self.confirmations.count() >= 2:  # Cambia il numero a seconda della policy
+            self.status = "verified"
+        self.save()
+
+    def delete_report(self, user):
+        """Permette solo all'autore della segnalazione o a un admin di eliminarla."""
+        if self.user == user or user.is_superuser:
+            self.delete()
+            return True
+        return False
 
     def __str__(self):
         return f"Report {self.id} - {self.city} ({self.status})"

@@ -17,6 +17,7 @@ from .models import Report, get_image_path  # Assicurati di importarlo correttam
 #from utilities.ai_utils import classify_image
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.views.generic import ListView
 from django.contrib import messages
@@ -250,6 +251,37 @@ def report_success(request, report_id):
 
     return render(request, 'report/report_success.html', context)
 
+@login_required
+def confirm_report(request, report_id):
+    """Permette a un utente di confermare una segnalazione."""
+    report = get_object_or_404(Report, id=report_id)
+
+    if report.confirmations.filter(username=request.user).exists():
+    #if request.user in report.confirmations.filter.all():
+        return JsonResponse({"error": "Hai già confermato questa segnalazione."}, status=400)
+
+    report.confirm_report(request.user)
+    return JsonResponse({"message": "Segnalazione confermata!", "confirmations": report.confirmations.count(), "status": report.status})
+
+@login_required
+@csrf_exempt  # Rimuovilo se usi il CSRF token
+def delete_report_(request, report_id):
+    if request.method == "DELETE":
+        report = get_object_or_404(Report, id=report_id)
+        report.delete()
+        return JsonResponse({"success": True, "message": "Report eliminato"})
+    return JsonResponse({"error": "Metodo non consentito"}, status=405)
+
+@login_required
+def delete_report(request, report_id):
+    """Permette all'utente che ha creato la segnalazione o a un admin di eliminarla."""
+    report = get_object_or_404(Report, id=report_id)
+
+    if not report.delete_report(request.user):
+        return JsonResponse({"error": "Non hai i permessi per eliminare questa segnalazione."}, status=403)
+
+    return JsonResponse({"message": "Segnalazione eliminata con successo!"})
+
 class ReportListView(ListView):
     model = Report
     template_name = "report/report_list.html"  # Template da usare
@@ -286,4 +318,6 @@ class ReportListView(ListView):
          context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
          context["MEDIA_URL"] = settings.MEDIA_URL  # Passa MEDIA_URL al template
          return context
+
+
 
