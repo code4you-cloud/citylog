@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "citylog"
+version = "0.1.0"
+description = "citylog site"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+asgiref = "3.8.1"
+certifi = "2023.7.22"
+charset-normalizer = "3.2.0"
+crispy-bootstrap4 = "2022.1"
+django = "5.1.2"
+django-crispy-forms = "2.0"
+idna = "3.4"
+psycopg2-binary = "2.9.6"
+pytz = "2023.3"
+requests = "2.31.0"
+sqlparse = "0.4.4"
+typing-extensions = "4.6.3"
+urllib3 = "2.0.4"
+pillow = "10.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
