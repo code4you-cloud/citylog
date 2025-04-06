@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container text-center mt-5">
+        <h2>Sei uscito dal sistema</h2>
+        <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email"       class="btn btn-primary">
+             <i class="fab fa-facebook"></i> Accedi di nuovo
+              </a>
+        <!--a href="{% url 'core:home' %}" class="btn btn-primary mt-3">Accedi di nuovo</a-->
+    </div>
+
+<!-- Aggiunto lo stesso margine inferiore del top -->
+<div class="mt-5"></div>
+{% endblock %}
+

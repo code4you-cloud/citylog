@@ -5,10 +5,10 @@ crispy-bootstrap4==2022.1
 Django==3.2.8
 django-crispy-forms==2.0
 idna==3.4
-psycopg2-binary==2.9.6
+Pillow==10.0.0
+psycopg2-binary==2.9.10
 pytz==2023.3
 requests==2.31.0
 sqlparse==0.4.4
 typing_extensions==4.6.3
 urllib3==2.0.4
-Pillow==10.0.0

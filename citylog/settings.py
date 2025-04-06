@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'report',
+    'utilities',
 ]
 
 MIDDLEWARE = [
@@ -58,7 +60,7 @@ ROOT_URLCONF = 'citylog.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -95,8 +97,18 @@ else:
             'PASSWORD': '',
             'HOST': '192.168.1.49',
             'PORT': '5432',
+    },
+        'segnalazioni_db': {  # Database delle segnalazioni (da importare)
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'geodumbmail',
+            'USER': 'postgres',
+            'PASSWORD': 'postgres',
+            'HOST': '192.168.1.65',
+            'PORT': '5432',
     }
 }
+
+DATABASE_ROUTERS = ['core.db_router.SegnalazioniRouter']
 
 
 # Password validation
@@ -139,17 +151,26 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-EMAIL_HOST = 'mx.citylog.cloud'
+# to send email
+EMAIL_HOST = 'smtp.code4you.cloud'
 EMAIL_HOST_USER = 'info@citylog.cloud'
 EMAIL_HOST_PASSWORD = 'Blacking1'
 FROM_EMAIL = 'noreply@citylof.cloud'
 SERVER_EMAIL = 'noreply@citylog.cloud'
-EMAIL_PORT = 25
+EMAIL_PORT = 587
 EMAIL_USE_TLS = False
+
+# facebook login
+FACEBOOK_APP_ID = "1233024841238630"
+FACEBOOK_APP_SECRET = "2e4014a04501a202e71b9a5679155de5"
+FACEBOOK_REDIRECT_URI = "https://citylog.cloud/facebook/callback/"
+
+# redirect to login facebook
+LOGIN_URL = '/'

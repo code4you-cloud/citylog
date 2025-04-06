@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <h1 class="text-primary"><i class="fas fa-trash-alt"></i> Segnalazioni Rifiuti</h1>
+    
+    <div class="row">
+        {% for segnalazione in segnalazioni %}
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                {% if segnalazione.immagine %}
+                    <img src="{{ segnalazione.immagine.url }}" class="card-img-top" alt="Immagine segnalazione">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ segnalazione.luogo }}</h5>
+                    <p class="card-text"><strong>Stato:</strong> <span class="badge badge-info">{{ segnalazione.get_stato_display }}</span></p>
+                    <a href="{% url 'core:rifiuti-detail' segnalazione.pk %}" class="btn btn-primary">Dettagli</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+            <p class="text-muted">Nessuna segnalazione disponibile.</p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+

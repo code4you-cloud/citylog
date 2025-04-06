@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5"><!-- Spazio extra in cima -->
+    <div class="text-center">
+        <h1 class="text-primary"><i class="fas fa-hand-holding-heart"></i> Sostieni CityLog</h1>
+        <p class="lead">Ogni contributo aiuta a migliorare l'ambiente!</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center">
+                    <h4 class="card-title">Fai la Differenza!</h4>
+                    <p class="card-text">
+                        Il tuo supporto ci aiuta a combattere l'inquinamento e a proteggere il verde urbano.
+                        Scegli un importo e dona in pochi secondi!
+                    </p>
+                    <hr>
+
+                    <!-- Importi Predefiniti -->
+                    <!--h5 class="text-success"><i class="fas fa-donate"></i> Scegli un Importo</h5>
+                    <div class="btn-group mt-3" role="group">
+                        <button class="btn btn-outline-success donate-btn" data-amount="5">€5</button>
+                        <button class="btn btn-outline-success donate-btn" data-amount="10">€10</button>
+                        <button class="btn btn-outline-success donate-btn" data-amount="20">€20</button>
+                        <button class="btn btn-outline-success donate-btn" data-amount="50">€50</button>
+                        <button class="btn btn-outline-success donate-btn" data-amount="100">€100</button>
+                    </div-->
+
+                    <!-- Importo Personalizzato -->
+                    <h5 class="mt-4 text-secondary"><i class="fas fa-credit-card"></i> Importo Personalizzato</h5>
+                    <div class="input-group mt-2">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">€</span>
+                        </div>
+                        <input type="number" class="form-control text-center" id="custom-amount" placeholder="Inserisci un importo" min="1">
+                    </div>
+
+                    <!-- PayPal Button -->
+                    <div class="mt-4">
+                        <h5 class="text-primary"><i class="fab fa-paypal"></i> Dona con PayPal</h5>
+                        <form action="https://www.paypal.com/donate" method="post" target="_blank">
+                            <input type="hidden" name="hosted_button_id" value="IL_TUO_PAYPAL_ID">
+                            <button type="submit" class="btn btn-primary"><i class="fab fa-paypal"></i> Donazione con PayPal</button>
+                        </form>
+                    </div>
+
+                    <!-- Stripe Button -->
+                    <div class="mt-4">
+                        <h5 class="text-danger"><i class="fas fa-credit-card"></i> Dona con Stripe</h5>
+                        <form action="{#{% url 'stripe_payment' %}#}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="amount" id="stripe-amount" value="10">
+                            <button type="submit" class="btn btn-danger"><i class="fas fa-credit-card"></i> Donazione con Stripe</button>
+                        </form>
+                    </div>
+
+                    <p class="mt-3 text-muted">Grazie per il tuo contributo!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spazio extra per distanziare dal footer -->
+    <div class="mt-5"></div>  
+</div>
+
+<script>
+    document.querySelectorAll('.donate-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            document.getElementById('stripe-amount').value = this.getAttribute('data-amount');
+        });
+    });
+</script>
+
+{% endblock %}
+

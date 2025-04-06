@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-primary">Regolamento d'Uso</h1>
+    <p class="text-muted">Ultimo aggiornamento: {{ last_update|default:"Marzo 2025" }}</p>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">1. Finalità del Progetto</h5>
+            <p>CityLog è una piattaforma collaborativa per la segnalazione di disservizi ambientali e urbani. Gli utenti sono invitati a contribuire responsabilmente al miglioramento della propria città.</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">2. Regole di Utilizzo</h5>
+            <ul>
+                <li>Gli utenti devono inviare immagini pertinenti agli obiettivi del progetto.</li>
+                <li>Le segnalazioni devono essere basate su fatti verificabili e non fuorvianti.</li>
+                <li>È vietato inviare immagini con riferimenti personali (volti, targhe automobilistiche, indirizzi privati, ecc.).</li>
+                <li>Le immagini non devono essere manipolate o alterate in modo ingannevole.</li>
+                <li>CityLog si riserva il diritto di rimuovere contenuti che violano le linee guida.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">3. Responsabilità dell'Utente</h5>
+            <p>Ogni utente è responsabile del materiale caricato e accetta di non caricare contenuti falsi, inappropriati o lesivi.</p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Torna alla Dashboard</a>
+    </div>
+</div>
+<!-- Aggiunto lo stesso margine inferiore del top -->
+<div class="mt-5"></div>
+{% endblock %}
+

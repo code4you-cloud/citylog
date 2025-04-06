@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-secondary text-white">
+            Segnalazione inviata con successo!
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">Grazie per la tua segnalazione!</h5>
+            <p class="card-text">
+                La tua segnalazione è stata registrata con il seguente codice di tracciamento:
+                <strong>{{ image_id }}</strong>.
+            </p>
+            <p class="card-text">
+                Puoi utilizzare questo codice per fare riferimento alla tua segnalazione in futuro.
+            </p>
+            <a href="{% url 'core:home' %}" class="btn btn-primary">Torna alla home</a>
+            <hr class="my-4">
+            <a class="btn btn-primary btn-lg" href="{% url 'reports:create_report' %}" role="button">Invia un'altra segnalazione</a>
+        </div>
+    </div>
+</div>
+<!-- Aggiunto lo stesso margine inferiore del top -->
+<div class="mt-5"></div>
+{% endblock %}
