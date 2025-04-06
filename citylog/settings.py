@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+@^slyn0z^or(6&0uuwxbqb)sje*wvsctd63gbah0biy$+)&a5
 DEBUG = True
 
 # Switch from sqlite3 and postgresql
-SQL_DB = True
+SQL_DB = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -94,16 +94,16 @@ else:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'citylog',
             'USER': 'postgres',
-            'PASSWORD': '',
-            'HOST': '192.168.1.49',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     },
         'segnalazioni_db': {  # Database delle segnalazioni (da importare)
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'geodumbmail',
             'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': '192.168.1.65',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     }
 }
