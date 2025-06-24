@@ -276,3 +276,34 @@ def facebook_callback(request):
 def dashboard(request):
     user_reports = Report.objects.filter(user=request.user).order_by('-image_time')  # Filtra per utente autenticato
     return render(request, 'core/dashboard.html', {'reports': user_reports, "MEDIA_URL": settings.MEDIA_URL})
+
+
+# views.py
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+@login_required
+def elimina_utente(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()  # Cancella l'utente e i dati collegati (se on_delete=CASCADE)
+        messages.success(request, "Account eliminato con successo.")
+        return redirect('home')
+    return render(request, 'conferma_eliminazione.html', {'action': 'account'})
+
+@login_required
+def elimina_dati_personali(request):
+    if request.method == 'POST':
+        user = request.user
+        # Anonimizzazione dati (esempio minimo)
+        user.email = f"deleted_{user.id}@example.com"
+        user.first_name = "Deleted"
+        user.last_name = "User"
+        user.save()
+        messages.success(request, "Dati personali rimossi con successo.")
+        return redirect('home')
+    return render(request, 'conferma_eliminazione.html', {'action': 'dati'})
+
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')
