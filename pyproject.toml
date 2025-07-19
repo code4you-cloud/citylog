@@ -1,0 +1,20 @@
+[project]
+name = "citylog"
+version = "0.1.0"
+description = "Tech city"
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = [
+    "django-simple-accounts @ file:///usr/share/citylog/django-simple-accounts/dist/django_simple_accounts-1.1.2-py3-none-any.whl",
+    "django-system-info @ file:///usr/share/citylog/django-system-info/dist/django_system_info-0.2.19-py3-none-any.whl",
+    "django-facebook-auth @ file:///usr/share/citylog/django-facebook-auth/dist/django_facebook_auth-0.1.1-py3-none-any.whl",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

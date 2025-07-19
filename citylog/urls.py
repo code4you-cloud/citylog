@@ -34,8 +34,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('report/', include('report.urls', namespace='report')),
+    path('account/', include('django_simple_accounts.urls')),
     path("facebook/callback/", facebook_callback, name="facebook-callback"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("dashboard/", dashboard, name="dashboard"),
     path("dashboard/", dashboard, name="dashboard"),
 ] + privacy_urls
 

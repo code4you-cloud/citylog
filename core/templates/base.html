@@ -227,6 +227,11 @@
                     </ul>
                 </div>
             </div>
+            {% if system_info_template %}                                                                                                    	
+                <div class="system-footer">
+        	        {% include system_info_template %}
+                <div>
+            {% endif %}
             <!--/row-->
         </div>
     </footer> 

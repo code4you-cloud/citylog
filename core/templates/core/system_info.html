@@ -1,0 +1,88 @@
+<style>
+    .debug-info {
+        font-family: monospace;
+        font-size: 0.95rem;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        padding: 1rem;
+        margin-top: 1rem;
+        border-radius: 8px;
+        color: #333;
+    }
+
+    .debug-info h3 {
+        margin-top: 0;
+        font-size: 1.1rem;
+        color: #222;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.25rem;
+    }
+
+    .debug-info p, .debug-info li {
+        margin: 0.25rem 0;
+        line-height: 1.4;
+    }
+
+    .debug-info .label {
+        font-weight: bold;
+        color: #444;
+        margin-right: 0.25rem;
+    }
+
+    .debug-info ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .debug-info li {
+        border-left: 4px solid #eee;
+        padding-left: 0.5rem;
+    }
+
+    .debug-info .branch {
+        color: #006400;
+        font-weight: bold;
+    }
+
+    .debug-info .version {
+        color: #1a73e8;
+    }
+
+    .debug-info .builtin {
+        color: #999;
+    }
+</style>
+
+<div class="debug-info">
+    <h3>🔍 System Info</h3>
+
+    <p><span class="label">Branch:</span> <span class="branch">{{ git_branch }}</span></p>
+    <p><span class="label">Database:</span> {{ db_info.engine }} <code>({{ db_info.name }})</code> on {{ db_info.host }}</p>
+    <p><span class="label">Hostname:</span> {{ hostname }} (IP: {{ ip }})</p>
+    <p><span class="label">Python:</span> {{ python_version }}</p>
+    <p><span class="label">Django:</span> {{ django_version }}</p>
+    <p><span class="label">OS:</span> {{ os }}</p>
+
+    <h3>🧩 Installed Apps</h3>
+    <ul>
+    {% for app in apps_info %}
+        {% if not app.is_builtin %}
+            <li>
+                <span class="label">{{ app.name }}</span>:
+                <span class="version">{{ app.version|default:"N/A" }}</span>
+                {% if app.git_branch %}
+                    (<span class="branch">{{ app.git_branch }}</span>)
+                {% endif %}
+            </li>
+        {% else %}
+            {# opzionale: mostra anche le builtin in grigio #}
+            <li class="builtin">
+                <span class="label">{{ app.name }}</span>: built-in
+            </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</div>
+
+
