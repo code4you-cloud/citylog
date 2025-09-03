@@ -43,7 +43,7 @@
                     </td>
                     <td style="width: 100px; height: 100px;">
                         {% if segnalazione.status == '0' %}
-                        <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ segnalazione.latitude }}&lon={{ segnalazione.longitude }}&zoom=15&address={{ segnalazione.address }}&image_url=https://image.citylog.cloud{{ segnalazione.image_url }}" target="_blank">
+                        <a href="https://maps.citylog.cloud/sample_leaflet.html?lat={{ segnalazione.latitude }}&lon={{ segnalazione.longitude }}&zoom=15&address={{ segnalazione.address }}&image_url={{ segnalazione.image_url }}" target="_blank">
                             <img src="{{ segnalazione.image_url }}" alt="Immagine" style="width: 100%; height: 100%; object-fit: cover;" />
                         </a>
                         {% else %}

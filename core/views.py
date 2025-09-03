@@ -17,6 +17,9 @@ from django.contrib.auth.decorators import login_required
 from report.models import Report
 from .models import EmailsEmaildata, Users, Trees
 
+from facebook_auth.client import FacebookAuthClient
+from facebook_auth.exceptions import FacebookAuthError
+
 #from .models import EmailsEmaildata
 
 logger = logging.getLogger(__name__)
@@ -46,11 +49,12 @@ class RifiutiListView(ListView):
 
         # Definisci i titoli e le descrizioni in base al tipo di pagina
         page_titles = {
-            "ambiente": ("Monitoraggio Ambientale", "Scopri le segnalazioni ambientali nella tua città."),
-            "rete": ("Rete Stradale", "Partecipa alla segnalazione della rete stradale."),
-            "rifiuti": ("Monitoraggio Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
-            "buche": ("Buche", "Monitora le buche o dissesti stradali pericolosi."),
-            "inquinamento": ("Inquinamento", "Visualizzate le % inquinanti."),
+            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città."),
+            "rete": ("Log.Traffico", "Partecipa alla segnalazione della rete stradale."),
+            "rifiuti": ("Log.Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
+            "buche": ("Log.Buche", "Monitora le buche o dissesti stradali pericolosi."),
+            "inquinamento": ("Log.Aria", "Visualizzate le % inquinanti."),
+            "dashboard": ("Dashboard", "La tua Dashboard personale."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
         }
@@ -221,7 +225,61 @@ class StatisticheView(TemplateView):
            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
            return context
 
+
 def facebook_callback(request):
+     code = request.GET.get("code")
+     if not code:
+         return redirect("core:home")
+
+     # Scambio del codice con un access token
+     token_url = "https://graph.facebook.com/v17.0/oauth/access_token"
+     params = {
+         "client_id": settings.FACEBOOK_APP_ID,
+         "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+         "client_secret": settings.FACEBOOK_APP_SECRET,
+         "code": code,
+     }
+     response = requests.get(token_url, params=params)
+     token_data = response.json()
+
+     access_token = token_data.get("access_token")
+     if not access_token:
+         return redirect("core:home")
+
+     # Ottenere i dati dell'utente
+     user_info_url = "https://graph.facebook.com/me"
+     user_params = {
+         "fields": "id,name,email,picture",
+         "access_token": access_token,
+     }
+     user_response = requests.get(user_info_url, params=user_params)
+     user_data = user_response.json()
+
+     facebook_id = user_data.get("id")
+     name = user_data.get("name")
+     email = user_data.get("email")
+     picture_url = user_data.get("picture", {}).get("data", {}).get("url")
+
+     # Usa facebook_id come username se email non è disponibile
+     username = email if email else facebook_id
+     if not username:
+         return redirect("core:manifesto")  # Reindirizza se né email né facebook_id sono disponibili
+
+     # Creazione o autenticazione dell'utente
+     user, created = User.objects.get_or_create(
+         username=username,
+         defaults={"first_name": name or "", "email": email or ""}
+     )
+
+     # Salva i dati nella sessione
+     request.session['facebook_picture'] = picture_url
+     request.session['facebook_name'] = name
+
+     # Autentica l'utente
+     login(request, user, backend='facebook_auth.backends.FacebookAuthBackend')
+     return redirect("core:dashboard")
+
+def facebook_callback_(request):
     code = request.GET.get("code")
     if not code:
         return redirect("core:home")

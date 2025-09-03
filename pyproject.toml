@@ -9,9 +9,14 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
-    "django-simple-accounts @ file:///usr/share/citylog/django-simple-accounts/dist/django_simple_accounts-1.1.2-py3-none-any.whl",
-    "django-system-info @ file:///usr/share/citylog/django-system-info/dist/django_system_info-0.2.19-py3-none-any.whl",
-    "django-facebook-auth @ file:///usr/share/citylog/django-facebook-auth/dist/django_facebook_auth-0.1.1-py3-none-any.whl",
+    "django (>=5.0)",
+    "django-crispy-forms (>=1.14,<3.0)",
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "requests (>=2.32.4,<3.0.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "setuptools (>=80.9.0,<81.0.0)",
+    "social-auth-app-django (>=5.5.1,<6.0.0)",
+    "crispy-bootstrap4 (>=2025.6,<2026.0)",
 ]
 
 

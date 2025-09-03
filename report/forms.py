@@ -19,7 +19,7 @@ class ReportWebForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})  # Genera un <select> nel template
     )
 
-    upload_image = forms.ImageField(
+    image_file = forms.ImageField(
         required=True,
         widget=forms.FileInput(attrs={
             'class': 'custom-file-input',
@@ -42,8 +42,27 @@ class ReportWebForm(forms.Form):
         city = cleaned_data.get('city')
         address = cleaned_data.get('address')
         typo = cleaned_data.get('typo')
+        image_file = cleaned_data.get("image_file")
 
         if not city or not address:
             raise forms.ValidationError("Città e indirizzo sono campi obbligatori.")
 
         return cleaned_data
+
+
+class ReportForm(forms.ModelForm):
+    typo = forms.ChoiceField(  # ✅ Campo definito a livello di classe
+        choices=Report.TYPE_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Report
+        fields = ["city", "address", "typo", "description", "image_file"]
+        widgets = {
+            "city": forms.TextInput(attrs={"class": "form-control"}),
+            "address": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control"}),
+            "image_file": forms.ClearableFileInput(attrs={"class": "form-control"}),
+        }

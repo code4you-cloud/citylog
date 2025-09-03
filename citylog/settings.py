@@ -44,8 +44,9 @@ INSTALLED_APPS = [
     'report',
     'utilities',
     'django_system_info',
-    'django_simple_accounts',
+    'django_users_accounts',
     'crispy_forms',
+    'crispy_bootstrap4',
     'facebook_auth',
 ]
 
@@ -105,16 +106,16 @@ else:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'citylog',
             'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': '192.168.1.65',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     },
         'segnalazioni_db': {  # Database delle segnalazioni (da importare)
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'geodumbmail',
             'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': '192.168.1.65',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     }
 }
@@ -186,6 +187,7 @@ FACEBOOK_REDIRECT_URI = "https://citylog.cloud/facebook/callback/"
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 #SECURE_SSL_REDIRECT = True
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+#SOCIAL_AUTH_FACEBOOK_SCOPE = "email,public_profile"
 
 SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
     'fields': 'id, name, email'
@@ -193,7 +195,6 @@ SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
 
 # redirect to login facebook
 #LOGIN_URL = '/'
-
 
 # django-system-info
 SYSTEM_INFO_ENABLED = True
@@ -204,7 +205,34 @@ SYSTEM_INFO_TEMPLATE = "core/system_info.html"
 
 # django-simple-accounts
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL ='login'
-LOGIN_REDIRECT_URL ='dashboard'
+LOGIN_REDIRECT_URL ='profile'
+
+# django-custom-storage
+DEFAULT_FILE_STORAGE = "custom_storage.backends.CustomMediaStorage"
+
+# django-custom-storage endpoint
+REMOTE_STORAGE_UPLOAD_URL = 'https://ws.citylog.cloud/upload'
+REMOTE_STORAGE_MEDIA_URL = 'https://ws.citylog.cloud/media'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',  # O 'DEBUG' per più dettagli
+            'class': 'logging.FileHandler',
+            'filename': '/usr/share/citylog/logs/error.log',  # Percorso del file di log
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}

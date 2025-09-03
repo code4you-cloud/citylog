@@ -38,7 +38,11 @@
                     <td>{{ report.latitude|default:"-" }}</td>
                     <td>{{ report.longitude|default:"-" }}</td>
                     <td>{{ report.city|default:"-" }}</td>
-                    <td><a href="{{ MEDIA_URL }}{{ report.image_file }}">{{ report.address|default:"-" }}</a></td>
+                    {% if report.image_file %}
+                        <td><a href="{{ report.image_file.url }}">{{ report.address|default:"-" }}</a></td>
+                    {% else %}
+                        <td>{{ report.address|default:"-" }}</td>
+                    {% endif %}
                     <td>{{ report.image_time|date:"d/m/Y H:i" }}</td>
                     <td>{{ report.image_id|default:"-" }}</td>
                     <td><span class="badge badge-info">{{ report.status|default:"-" }}</span></td>
