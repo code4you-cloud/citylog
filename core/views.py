@@ -49,10 +49,10 @@ class RifiutiListView(ListView):
 
         # Definisci i titoli e le descrizioni in base al tipo di pagina
         page_titles = {
-            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città."),
+            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città. Le segnalazioni evidenziano: abbattimento/tronchi - cemimento arboreo - piantumazioni arboree"),
             "rete": ("Log.Traffico", "Partecipa alla segnalazione della rete stradale."),
             "rifiuti": ("Log.Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
-            "buche": ("Log.Buche", "Monitora le buche o dissesti stradali pericolosi."),
+            "buche": ("Log.Buche", "Monitora le buche o dissesti stradali pericolosi per la viabilità."),
             "inquinamento": ("Log.Aria", "Visualizzate le % inquinanti."),
             "dashboard": ("Dashboard", "La tua Dashboard personale."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
@@ -170,6 +170,89 @@ class RegoleView(TemplateView):
             context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
             context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
             return context
+
+# Vista per la pagina trasparenza
+class TrasparenzaView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/trasparenza.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/trasparenza/' in path:
+               page_type = "trasparenza"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "trasparenza": ("Trasparenza", "La nostra Roadmap trasparente."),
+                "default": ("Trasparenza", "Trasparenza."),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+
+# Vista per la pagina guida-foto
+class GuidaFotoView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/guida-foto.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/guida-foto/' in path:
+               page_type = "guida-foto"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "guida-foto": ("Guida Foto", "Alcuni consigli come segnalare."),
+                "default": ("Guida Foto", "Guida Foto."),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+# Vista per la pagina guida-foto
+class MotivazioniView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/motivazioni.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/motivazioni/' in path:
+               page_type = "motivazioni"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "motivazioni": ("Motivazioni", "Perchè dovresti farlo."),
+                "default": ("Motivazioni", "Motivazioni"),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
 
 # Vista per la pagina regolamento
 class ApiView(TemplateView):

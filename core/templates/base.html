@@ -154,6 +154,15 @@
                         <a class="nav-link" href="{% url 'core:regole-view' %}">Regole</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:guida-foto' %}">Guida Foto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:trasparenza' %}">Trasparenza-Roadmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:motivazioni' %}">Motivazioni</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'core:api-view' %}" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
                             API
                         </a>
@@ -227,6 +236,16 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Riga separata per associazione -->
+            <!--div class="row mt-4">
+                <div class="col-12 text-center text-light">
+                    <p style="margin: 0;">© 2025 CityLog.cloud | Iniziativa dell’Associazione “Civica per la Tutela Ambientale e la Memoria di [Nome Madre]”</p>
+                    <p style="margin: 0;">Piattaforma aperta a tutti i cittadini che condividono i valori di responsabilità e merito.</p>
+                    <p style="margin: 0;"><a class="text-white" href="#">Chi siamo</a> | <a class="text-white" href="#">Contatti</a></p>
+                </div>
+            </div-->
+
             {% if system_info_template %}                                                                                                    	
                 <div class="system-footer">
         	        {% include system_info_template %}

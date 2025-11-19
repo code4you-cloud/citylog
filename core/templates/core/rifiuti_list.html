@@ -1,9 +1,13 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-primary">{{ page_title }} - <h3 class="text-secondary">{{ typo|default:"anything" }}</h3></h1>
-
+    <h1 class="text-primary">{{ page_title }} <h3 class="text-secondary">{{ typo|default:"" }}</h3></h1>
+    <div class="container my-5 text-center">
+        <a href="https://maps.citylog.cloud/sample_leaflet_mono17.html" class="btn btn-secondary">Mappa completa</a>
+        <a href="https://example.com" class="btn btn-info">Statistiche</a>
+    </div>
     <div class="table-responsive"> <!-- Questo rende la tabella scorrevole su schermi piccoli -->
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
