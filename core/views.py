@@ -20,6 +20,10 @@ from .models import EmailsEmaildata, Users, Trees
 from facebook_auth.client import FacebookAuthClient
 from facebook_auth.exceptions import FacebookAuthError
 
+
+
+import traceback
+
 #from .models import EmailsEmaildata
 
 logger = logging.getLogger(__name__)
@@ -310,6 +314,75 @@ class StatisticheView(TemplateView):
 
 
 def facebook_callback(request):
+    try:
+        logger.debug("Facebook callback GET params: %s", request.GET)
+
+        code = request.GET.get("code")
+        if not code:
+            logger.warning("Nessun code fornito nella callback")
+            return redirect("core:home")
+
+        # 🔹 Scambio del code con access token
+        token_url = f"https://graph.facebook.com/v17.0/oauth/access_token"
+        params = {
+            "client_id": settings.FACEBOOK_APP_ID,
+            "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+            "client_secret": settings.FACEBOOK_APP_SECRET,
+            "code": code,
+        }
+        response = requests.get(token_url, params=params)
+        token_data = response.json()
+        logger.debug("Token data: %s", token_data)
+
+        access_token = token_data.get("access_token")
+        if not access_token:
+            logger.error("Access token non disponibile: %s", token_data)
+            return redirect("core:home")
+
+        # 🔹 Ottieni dati utente
+        user_info_url = "https://graph.facebook.com/me"
+        user_params = {
+            "fields": "id,name,email,picture",
+            "access_token": access_token,
+        }
+        user_response = requests.get(user_info_url, params=user_params)
+        user_data = user_response.json()
+        logger.debug("Facebook user_data: %s", user_data)
+
+        facebook_id = user_data.get("id")
+        name = user_data.get("name")
+        email = user_data.get("email")
+        picture_url = user_data.get("picture", {}).get("data", {}).get("url")
+
+        # 🔹 Usa facebook_id come fallback per username
+        username = email or facebook_id
+        if not username:
+            logger.error("Né email né facebook_id disponibili, redirect")
+            return redirect("core:manifesto-view")
+
+        # 🔹 Creazione o autenticazione dell'utente
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={"first_name": name or "", "email": email or ""}
+        )
+        logger.debug("User ottenuto: %s, creato: %s", user.username, created)
+
+        # 🔹 Salva dati in sessione
+        request.session['facebook_picture'] = picture_url
+        request.session['facebook_name'] = name
+
+        # 🔹 Autentica utente
+        login(request, user, backend='facebook_auth.backends.FacebookAuthBackend')
+        logger.debug("Login Django effettuato per: %s", user.username)
+
+        return redirect("core:dashboard")
+
+    except Exception as e:
+        logger.error("Errore nella facebook_callback: %s", e)
+        logger.error(traceback.format_exc())
+        return redirect("core:manifesto-view")
+
+def facebook_callback_good(request):
      code = request.GET.get("code")
      if not code:
          return redirect("core:home")
@@ -346,7 +419,7 @@ def facebook_callback(request):
      # Usa facebook_id come username se email non è disponibile
      username = email if email else facebook_id
      if not username:
-         return redirect("core:manifesto")  # Reindirizza se né email né facebook_id sono disponibili
+         return redirect("core:manifesto-view")  # Reindirizza se né email né facebook_id sono disponibili
 
      # Creazione o autenticazione dell'utente
      user, created = User.objects.get_or_create(
