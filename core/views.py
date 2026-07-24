@@ -1,5 +1,7 @@
 import logging
 import requests
+import traceback
+import json
 
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView
@@ -20,9 +22,9 @@ from .models import EmailsEmaildata, Users, Trees
 from facebook_auth.client import FacebookAuthClient
 from facebook_auth.exceptions import FacebookAuthError
 
-
-
-import traceback
+from django.utils import timezone
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDay
 
 #from .models import EmailsEmaildata
 
@@ -53,10 +55,10 @@ class RifiutiListView(ListView):
 
         # Definisci i titoli e le descrizioni in base al tipo di pagina
         page_titles = {
-            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città. Le segnalazioni evidenziano: abbattimento/tronchi - cemimento arboreo - piantumazioni arboree"),
+            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città. Le segnalazioni evidenziano: erosione-arboreo - censimento arboreo - nuove piantumazioni arboree"),
             "rete": ("Log.Traffico", "Partecipa alla segnalazione della rete stradale."),
             "rifiuti": ("Log.Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
-            "buche": ("Log.Buche", "Monitora le buche o dissesti stradali pericolosi per la viabilità."),
+            "strade": ("Log.Strade", "Monitora le tue strade, i dissesti stradali pericolosi per la tua incolumità e viabilità."),
             "inquinamento": ("Log.Aria", "Visualizzate le % inquinanti."),
             "dashboard": ("Dashboard", "La tua Dashboard personale."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
@@ -285,8 +287,43 @@ class ApiView(TemplateView):
           context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
           return context
 
-# Vista per la pagina regolamento
 class StatisticheView(TemplateView):
+    template_name = "core/statistiche.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # KPI
+        context["kpi"] = {
+            "totale": EmailsEmaildata.objects.count(),
+            "in_attesa": EmailsEmaildata.objects.filter(status="in_attesa").count(),
+            "risolte": EmailsEmaildata.objects.filter(status="risolto").count(),
+        }
+
+        # Trend ultimi giorni
+        context["chart_attuali_data"] = {
+            "labels": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
+            "series": [12, 19, 3, 5, 2, 3, 9],
+        }
+
+        # Per Tipologia
+        context["chart_tipologia_data"] = {
+            "labels": ["Ingombranti", "Abbandono", "Cassonetto Pieno", "Verde"],
+            "series": [45, 23, 15, 8],
+        }
+
+        # Mappa Dati per Quartiere (usata dal select JS)
+        context["quartieri_list"] = ["Centro", "Mazzini", "San Zeno"]
+        context["quartieri_dict_data"] = {
+            "Centro": [15, 8, 4, 2],
+            "Mazzini": [5, 12, 9, 1],
+            "San Zeno": [8, 3, 14, 6],
+        }
+
+        return context
+
+# Vista per la pagina regolamento
+class StatisticheView_ori(TemplateView):
     model = EmailsEmaildata
     template_name = "core/statistiche.html"
 

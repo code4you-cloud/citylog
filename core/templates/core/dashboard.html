@@ -26,8 +26,7 @@
                 <div class="card-header bg-primary text-white">Benvenuto nella tua Dashboard</div>
                 <div class="card-body">
                     <p class="card-text">Qui puoi gestire le tue segnalazioni e impostazioni.</p>
-                    <a href="{% url 'reports:create_report' %}" class="btn btn-outline-primary">Crea la tua segnalazione</a>
-                    <a href="{% url 'reports:report_list' %}" class="btn btn-outline-primary">Lista delle Segnalazioni</a>
+                    <a href="{% url 'reports:create_report' %}" class="btn btn-outline-primary">Vai alle segnalazioni</a>
                 </div>
             </div>
 
@@ -40,18 +39,17 @@
                             {% for report in reports %}
                                 <div class="col-md-4 mb-3">
                                     <div class="card">
-                                        <!-- Uniforma le dimensioni delle immagini -->
-                                        <img src="{{ MEDIA_URL }}{{ report.image_url }}" class="card-img-top" alt="Segnalazione" style="width: 100%; height: 200px; object-fit: cover;">
+                                        <img src="{{ MEDIA_URL }}{{ report.image_url }}" class="card-img-top" alt="Segnalazione">
                                         <div class="card-body">
                                             <!-- Mostra l'icona dell'utente Facebook se disponibile -->
-                                            <div class="d-flex align-items-center">
-                                                {% if request.session.facebook_picture %}
-                                                    <img src="{{ request.session.facebook_picture }}" class="rounded-circle" width="40" height="40" alt="User Image">
-                                                {% else %}
-                                                    <i class="fas fa-user-circle fa-2x text-secondary"></i>
-                                                {% endif %}
-                                                <h6 class="ms-2">{{ request.session.facebook_name }}</h6>
-                                            </div>
+                                             <div class="d-flex align-items-center">
+                                                 {% if request.session.facebook_picture %}
+                                                     <img src="{{ request.session.facebook_picture }}" class="rounded-circle" width="40" height="40" alt="User Image">
+                                                 {% else %}
+                                                     <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                                                 {% endif %}
+                                                 <h6 class="ms-2">{{ request.session.facebook_name }}</h6>
+                                             </div>
 
                                             <p class="card-text"><strong>Indirizzo:</strong> {{ report.address }}</p>
                                             <p class="card-text"><strong>Data:</strong> {{ report.image_time }}</p>

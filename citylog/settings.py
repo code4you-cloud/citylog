@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'crispy_forms',
     'crispy_bootstrap4',
     'facebook_auth',
+
+    'rifiuti',  # o 'rifiuti.apps.RifiutiConfig'
 ]
 
 MIDDLEWARE = [
@@ -112,7 +114,7 @@ else:
     },
         'segnalazioni_db': {  # Database delle segnalazioni (da importare)
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'geodumbmail',
+            'NAME': 'geodumbmail_alembic',
             'USER': 'postgres',
             'PASSWORD': 'postgres123',
             'HOST': 'localhost',

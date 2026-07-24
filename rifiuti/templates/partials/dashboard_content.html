@@ -1,0 +1,175 @@
+{# templates/statistiche/partials/dashboard_content.html #}
+{% load static %}
+
+<!-- KPI CARDS -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-bold">TOTALE SEGNALAZIONI</div>
+        <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.totale|default:"0" }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-bold">IN ATTESA</div>
+        <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.in_attesa|default:"0" }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
+      <div class="card-body">
+        <div class="text-muted small fw-bold">RISOLTE (30gg)</div>
+        <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.risolte|default:"0" }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GRAFICI -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 fw-bold py-3">
+        📈 Andamento Storico
+      </div>
+      <div class="card-body">
+        <div class="chart-wrapper" style="height: 280px;">
+          <canvas id="chartTrend"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-header bg-white border-0 fw-bold py-3">
+        🏷️ Distribuzione Tipologie
+      </div>
+      <div class="card-body">
+        <div class="chart-wrapper" style="height: 280px;">
+          <canvas id="chartTipologie"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALISI AVANZATA -->
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 py-3">
+        <span class="fw-bold">⚡ Efficienza per Quartiere</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrapper" style="height: 200px;">
+          <canvas id="chartEfficiency"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 py-3">
+        <span class="fw-bold">🔮 Previsioni 7 Giorni</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrapper" style="height: 200px;">
+          <canvas id="chartPredictions"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPT GRAFICI -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+  };
+  
+  // 1. Trend
+  const trendData = {{ chart_attuali_data|safe }};
+  if (trendData && trendData.labels) {
+    new Chart(document.getElementById("chartTrend"), {
+      type: "line",
+      data: {
+        labels: trendData.labels,
+        datasets: [{
+          label: "Segnalazioni",
+          data: trendData.series,
+          borderColor: "#2563eb",
+          backgroundColor: "rgba(37, 99, 235, 0.1)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: chartOptions
+    });
+  }
+  
+  // 2. Tipologie
+  const tipologieData = {{ chart_tipologia_data|safe }};
+  if (tipologieData && tipologieData.labels) {
+    new Chart(document.getElementById("chartTipologie"), {
+      type: "bar",
+      data: {
+        labels: tipologieData.labels,
+        datasets: [{
+          data: tipologieData.series,
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+        }]
+      },
+      options: chartOptions
+    });
+  }
+  
+  // 3. Efficienza
+  const efficiencyData = {{ efficiency|safe }};
+  if (efficiencyData) {
+    new Chart(document.getElementById("chartEfficiency"), {
+      type: "bar",
+      data: {
+        labels: Object.keys(efficiencyData),
+        datasets: [{
+          label: "Tasso di risoluzione %",
+          data: Object.values(efficiencyData),
+          backgroundColor: "#0d9488"
+        }]
+      },
+      options: {
+        ...chartOptions,
+        plugins: { legend: { display: true, position: 'top' } }
+      }
+    });
+  }
+  
+  // 4. Previsioni
+  const predictionsData = {{ predictions|safe }};
+  if (predictionsData && predictionsData.previsioni) {
+    new Chart(document.getElementById("chartPredictions"), {
+      type: "line",
+      data: {
+        labels: ["Oggi", "+1", "+2", "+3", "+4", "+5", "+6"],
+        datasets: [{
+          label: "Previsioni",
+          data: predictionsData.previsioni,
+          borderColor: "#8b5cf6",
+          backgroundColor: "rgba(139, 92, 246, 0.1)",
+          fill: true
+        }]
+      },
+      options: chartOptions
+    });
+  }
+});
+</script>

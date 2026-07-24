@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import HomePage, RifiutiListView, RifiutiDetailView, DonazioniView, ManifestoView, RegoleView, GuidaFotoView, TrasparenzaView, MotivazioniView, ApiView, StatisticheView, dashboard
+from .views import HomePage, RifiutiListView, RifiutiDetailView, DonazioniView, \
+    ManifestoView, RegoleView, GuidaFotoView, TrasparenzaView, MotivazioniView, ApiView, StatisticheView, dashboard
 
 app_name='core'
 
