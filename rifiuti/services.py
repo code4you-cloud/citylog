@@ -1,10 +1,11 @@
-# rifiuti/services.py
+# rifiuti/services.py - VERSIONE CORRETTA
 
 from dataclasses import dataclass
 from django.db.models import Count, Q
 from django.utils import timezone
 from datetime import timedelta
 from core.models import EmailsEmaildata
+import json  # ✅ Aggiungi questo import
 
 @dataclass
 class KPIMetrics:
@@ -29,6 +30,10 @@ class StatisticheService:
 
         print(f"🔍 Segnalazioni rifiuti: {self.queryset.count()}")
 
+    # ❌ RIMUOVI QUESTO METODO - NON DEVE ESSERE QUI!
+    # def get_context_data(self, **kwargs):
+    #     ...
+
     def get_kpi(self) -> KPIMetrics:
         oggi = timezone.now().date()
         trenta_giorni_fa = oggi - timedelta(days=30)
@@ -39,7 +44,24 @@ class StatisticheService:
             risolte=self.queryset.filter(status='risolta', image_time__date__gte=trenta_giorni_fa).count()
         )
 
-    def get_trend(self, days=30):
+    # rifiuti/services.py
+
+    def get_trend(self, days=365):  # ← CAMBIA DA 30 A 365 (o più)
+        """Trend solo per rifiuti - ultimi `days` giorni"""
+        start_date = timezone.now().date() - timedelta(days=days)
+        data = (
+            self.queryset
+            .filter(image_time__date__gte=start_date)
+            .values('image_time__date')
+            .annotate(count=Count('id'))
+            .order_by('image_time__date')
+        )
+        return {
+            'labels': [d['image_time__date'].strftime('%Y-%m-%d') for d in data],
+            'series': [d['count'] for d in data]
+        }
+
+    def get_trend_(self, days=30):
         """Trend solo per rifiuti"""
         start_date = timezone.now().date() - timedelta(days=days)
         data = (
@@ -77,7 +99,6 @@ class StatisticheService:
             if not q:
                 continue
 
-            # Conta solo rifiuti per quartiere
             stats = (
                 self.queryset
                 .filter(quartiere=q)
@@ -85,7 +106,6 @@ class StatisticheService:
                 .annotate(count=Count('id'))
             )
 
-            # Solo rifiuti (dovrebbe essere già filtrato)
             result[q] = [s['count'] for s in stats if s['typo'] == 'rifiuti']
             if not result[q]:
                 result[q] = [0]
@@ -96,15 +116,12 @@ class StatisticheService:
         """Medie giornaliere/settimanali/mensili per rifiuti"""
         oggi = timezone.now().date()
 
-        # Media giornaliera (ultimi 7 giorni)
         ultimi_7 = oggi - timedelta(days=7)
         media_giornaliera = self.queryset.filter(image_time__date__gte=ultimi_7).count() / 7
 
-        # Media settimanale (ultime 4 settimane)
         ultime_4_settimane = oggi - timedelta(weeks=4)
         media_settimanale = self.queryset.filter(image_time__date__gte=ultime_4_settimane).count() / 4
 
-        # Media mensile (ultimi 6 mesi)
         ultimi_6_mesi = oggi - timedelta(days=180)
         media_mensile = self.queryset.filter(image_time__date__gte=ultimi_6_mesi).count() / 6
 
@@ -117,17 +134,31 @@ class StatisticheService:
     def get_top_indirizzi(self, limit=10, quartiere=None):
         """
         Top indirizzi con più segnalazioni rifiuti
-        Se quartiere è specificato, filtra solo quel quartiere
+        Ora restituisce anche latitudine e longitudine di una segnalazione per la via
         """
         qs = self.queryset
 
-        # ✅ Se quartiere è passato, filtra
         if quartiere and quartiere != 'all':
             qs = qs.filter(quartiere=quartiere)
 
-        return (
+        # Ottieni il conteggio per indirizzo
+        top_indirizzi = (
             qs
-            .values('address', 'quartiere')
+            .values('address')
             .annotate(totale=Count('id'))
             .order_by('-totale')[:limit]
         )
+
+        # Arricchisce ogni risultato con le coordinate
+        result = []
+        for item in top_indirizzi:
+            segnalazione = qs.filter(address=item['address']).first()
+            if segnalazione:
+                item['latitude'] = segnalazione.latitude
+                item['longitude'] = segnalazione.longitude
+            else:
+                item['latitude'] = ''
+                item['longitude'] = ''
+            result.append(item)
+
+        return result

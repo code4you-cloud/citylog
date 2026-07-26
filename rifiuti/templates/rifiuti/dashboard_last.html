@@ -73,7 +73,7 @@
       </div>
     </div>
 
-    <!-- SCHEDA 2: Andamento (LINEA) -->
+    <!-- SCHEDA 2: Andamento (PUNTI) -->
     <div class="col-md-6">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-white border-0 py-2 d-flex justify-content-between align-items-center">
@@ -88,7 +88,7 @@
       </div>
     </div>
 
-    <!-- SCHEDA 3: Top vie con rifiuti (LISTA COMPATTA CON LINK) -->
+    <!-- SCHEDA 3: Top vie con rifiuti (LISTA COMPATTA) -->
     <div class="col-md-6">
       <div class="card border-0 shadow-sm h-100">
         <div class="card-header bg-white border-0 py-2">
@@ -97,17 +97,10 @@
         <div class="card-body py-1 d-flex flex-column justify-content-center" style="min-height: 260px;" id="topVieContainer">
           {% for addr in top_indirizzi|slice:":6" %}
           <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
-            <!-- ✅ LINK ALLA MAPPA -->
-            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17" 
-               target="_blank" 
-               class="small text-truncate" 
-               style="max-width: 75%; color: #0d6efd; text-decoration: none;"
-               title="Clicca per vedere le segnalazioni su mappa">
+            <span class="small text-truncate" style="max-width: 75%;">
               {{ forloop.counter }}. {{ addr.address|truncatechars:35 }}
-            </a>
-            <!--span class="badge bg-secondary rounded-pill px-3 flex-shrink-0"-->
-            <span class="badge rounded-pill px-3 flex-shrink-0"
-                   style="background-color: #facc15; color: #000000; font-weight: 600;">
+            </span>
+            <span class="badge bg-secondary rounded-pill px-3 flex-shrink-0">
               {{ addr.totale }}
             </span>
           </div>
@@ -187,9 +180,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const quartieriData = {{ chart_quartieri_data|safe }};
   const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'];
 
-  console.log('🔍 DEBUG - trendData:', trendData);
-  console.log('🔍 DEBUG - quartieriData:', quartieriData);
-
   let tortaChart = null;
   let puntiChart = null;
   let tortaData = null;
@@ -199,10 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // 1. FUNZIONE PER CREARE GRAFICO TORTA
   // -----------------------------
   function initTorta(data) {
-    if (!data || Object.keys(data).length === 0) {
-      console.warn('⚠️ Nessun dato per la torta');
-      return;
-    }
     const sorted = Object.entries(data)
       .sort((a, b) => b[1][0] - a[1][0])
       .slice(0, 6);
@@ -210,11 +196,10 @@ document.addEventListener('DOMContentLoaded', function() {
       labels: sorted.map(item => item[0]),
       values: sorted.map(item => item[1][0] || 0)
     };
-
+    
     const ctx = document.getElementById('chartTorta');
-    if (!ctx) return;
     if (tortaChart) tortaChart.destroy();
-
+    
     tortaChart = new Chart(ctx, {
       type: 'pie',
       data: {
@@ -241,35 +226,126 @@ document.addEventListener('DOMContentLoaded', function() {
         cutout: '50%'
       }
     });
-    console.log('✅ Grafico torta creato con', tortaData.labels.length, 'quartieri');
+  }
+
+  // -----------------------------
+  // 2. FUNZIONE PER CREARE GRAFICO PUNTI
+  // -----------------------------
+  function initPunti(data) {
+    // Se non ci sono dati, mostra un messaggio
+    if (!data || !data.labels || data.labels.length === 0) {
+        const ctx = document.getElementById('chartPunti');
+        if (ctx) {
+            const parent = ctx.parentElement;
+            parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+        }
+        puntiData = null;
+        return;
+    }
+    
+    // Prepara i dati per lo scatterplot
+    puntiData = data.labels.map((label, i) => ({
+        x: label,
+        y: data.series[i] || 0
+    }));
+    
+    const ctx = document.getElementById('chartPunti');
+    if (!ctx) return;
+    
+    // Distrugge il grafico precedente se esiste
+    if (puntiChart) {
+        puntiChart.destroy();
+        puntiChart = null;
+    }
+    
+    // Crea il nuovo grafico scatterplot
+    puntiChart = new Chart(ctx, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Segnalazioni',
+                data: puntiData,
+                backgroundColor: '#2563eb',
+                borderColor: '#2563eb',
+                pointRadius: 6,
+                pointHoverRadius: 10,
+                pointBorderWidth: 1,
+                pointBorderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { 
+                    display: true, 
+                    position: 'top',
+                    labels: { font: { size: 10 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' segnalazioni';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { 
+                        precision: 0, 
+                        font: { size: 9 },
+                        stepSize: 1
+                    },
+                    grid: { display: true, color: 'rgba(0,0,0,0.05)' },
+                    title: {
+                        display: true,
+                        text: 'Segnalazioni',
+                        font: { size: 9 }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { 
+                        font: { size: 9 }, 
+                        maxRotation: 30,
+                        autoSkip: true,
+                        maxTicksLimit: 15
+                    },
+                    title: {
+                        display: true,
+                        text: 'Data',
+                        font: { size: 9 }
+                    }
+                }
+            },
+            elements: {
+                point: {
+                    hoverRadius: 10,
+                    hoverBorderWidth: 2
+                }
+            }
+        }
+    });
   }
 
   // -----------------------------
   // 2. FUNZIONE PER CREARE GRAFICO ANDAMENTO (LINEA CON PUNTI)
   // -----------------------------
   function initAndamento(data) {
-    console.log('📈 initAndamento chiamato con:', data);
-
     // Se non ci sono dati, mostra un messaggio
     if (!data || !data.labels || data.labels.length === 0) {
-        const container = document.getElementById('puntiWrapper');
+        const container = document.getElementById('puntiWrapper'); // O il suo genitore
         if (container) {
             container.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato di andamento disponibile</div>';
         }
-        puntiData = null;
-        if (puntiChart) {
-            puntiChart.destroy();
-            puntiChart = null;
-        }
-        console.warn('⚠️ Nessun dato per il grafico andamento');
+        puntiData = null; // La variabile globale per i dati, se la usi per l'overlay
         return;
     }
 
     const ctx = document.getElementById('chartPunti');
-    if (!ctx) {
-        console.warn('❌ Canvas chartPunti non trovato');
-        return;
-    }
+    if (!ctx) return;
 
     // Distrugge il grafico precedente se esiste
     if (puntiChart) {
@@ -285,19 +361,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Crea il nuovo grafico a linee
     puntiChart = new Chart(ctx, {
-        type: 'line',
+        type: 'line', // CAMBIA QUI: 'line' invece di 'scatter'
         data: {
-            labels: data.labels,
+            labels: data.labels, // Le date sull'asse X
             datasets: [{
                 label: 'Segnalazioni',
-                data: data.series,
-                borderColor: '#2563eb',
-                backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                data: data.series, // I numeri sull'asse Y
+                borderColor: '#2563eb', // Colore della linea
+                backgroundColor: 'rgba(37, 99, 235, 0.1)', // Colore dell'area sotto la linea
                 borderWidth: 2,
-                pointRadius: 4,
+                pointRadius: 4, // Dimensione dei punti
                 pointBackgroundColor: '#2563eb',
-                fill: true,
-                tension: 0.3
+                fill: true, // Riempi l'area sotto la linea
+                tension: 0.3 // Arrotondamento della curva (0 = linee dritte, 0.3 = curva morbida)
             }]
         },
         options: {
@@ -349,82 +425,111 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+  }
 
-    console.log('✅ Grafico andamento creato con', data.labels.length, 'punti');
+  function initPunti_(data) {
+    puntiData = data.labels.map((label, i) => ({
+      x: label,
+      y: data.series[i] || 0
+    }));
+    
+    const ctx = document.getElementById('chartPunti');
+    if (puntiChart) puntiChart.destroy();
+    
+    puntiChart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+          label: 'Segnalazioni',
+          data: puntiData,
+          backgroundColor: '#2563eb',
+          borderColor: '#2563eb',
+          pointRadius: 5,
+          pointHoverRadius: 8
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0, font: { size: 9 } },
+            grid: { display: false }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 9 }, maxRotation: 25 }
+          }
+        }
+      }
+    });
   }
 
   // -----------------------------
   // 3. FUNZIONE PER TRASFORMARE I DATI DELL'API
   // -----------------------------
   function transformApiData(apiData) {
+    // Se la risposta è vuota o non è un array
     if (!apiData || !Array.isArray(apiData) || apiData.length === 0) {
-        return {
-            kpi: { totale: 0, in_attesa: 0, risolte: 0, in_lavorazione: 0 },
-            trend: { labels: [], series: [] },
-            quartieri: {},
-            top_indirizzi: []
-        };
+      return {
+        kpi: { totale: 0, in_attesa: 0, risolte: 0, in_lavorazione: 0 },
+        trend: { labels: [], series: [] },
+        quartieri: {},
+        top_indirizzi: []
+      };
     }
-
-    // ✅ FILTRA SOLO RIFIUTI
-    const rifiutiData = apiData.filter(item => item.typo === 'rifiuti');
-
-    // 1. KPI (solo rifiuti)
-    const totale = rifiutiData.length;
-    const in_attesa = rifiutiData.filter(s => s.status && (s.status.includes('attesa') || s.status === '0')).length;
-    const risolte = rifiutiData.filter(s => s.status && s.status.includes('risolta')).length;
-    const in_lavorazione = rifiutiData.filter(s => s.status && (s.status.includes('elaborazione') || s.status === '1')).length;
-
-    // 2. TOP INDIRIZZI (solo rifiuti)
-    const addressMap = {};
-    rifiutiData.forEach(s => {
-        const addr = s.address || 'Sconosciuto';
-        if (!addressMap[addr]) {
-            addressMap[addr] = {
-                address: addr,
-                totale: 0,
-                latitude: s.latitude || '',
-                longitude: s.longitude || ''
-            };
-        }
-        addressMap[addr].totale++;
-        if (s.latitude) addressMap[addr].latitude = s.latitude;
-        if (s.longitude) addressMap[addr].longitude = s.longitude;
+    
+    // 1. KPI
+    const totale = apiData.length;
+    const in_attesa = apiData.filter(s => s.status && (s.status.includes('attesa') || s.status === '0')).length;
+    const risolte = apiData.filter(s => s.status && s.status.includes('risolta')).length;
+    const in_lavorazione = apiData.filter(s => s.status && (s.status.includes('elaborazione') || s.status === '1')).length;
+    
+    // 2. TOP INDIRIZZI
+    const addressCount = {};
+    apiData.forEach(s => {
+      const addr = s.address || 'Sconosciuto';
+      addressCount[addr] = (addressCount[addr] || 0) + 1;
     });
-
-    const top_indirizzi = Object.values(addressMap)
-        .sort((a, b) => b.totale - a.totale);
-
-    // 3. QUARTIERI (solo rifiuti)
+    
+    const top_indirizzi = Object.entries(addressCount)
+      .map(([address, totale]) => ({ address, totale }))
+      .sort((a, b) => b.totale - a.totale);
+    
+    // 3. QUARTIERI
     const quartieri = {};
-    rifiutiData.forEach(s => {
-        const q = s.quartiere || 'Sconosciuto';
-        if (!quartieri[q]) quartieri[q] = [0, 0, 0, 0, 0];
-        const typo = s.typo || 'altro';
-        if (typo === 'rifiuti') quartieri[q][0]++;
-        else if (typo === 'strade') quartieri[q][1]++;
-        else if (typo === 'verde' || typo === 'piantumazione') quartieri[q][2]++;
-        else if (typo === 'illuminazione') quartieri[q][3]++;
-        else quartieri[q][4]++;
+    apiData.forEach(s => {
+      const q = s.quartiere || 'Sconosciuto';
+      if (!quartieri[q]) quartieri[q] = [0, 0, 0, 0, 0];
+      const typo = s.typo || 'altro';
+      if (typo === 'rifiuti') quartieri[q][0]++;
+      else if (typo === 'strade') quartieri[q][1]++;
+      else if (typo === 'verde' || typo === 'piantumazione') quartieri[q][2]++;
+      else if (typo === 'illuminazione') quartieri[q][3]++;
+      else quartieri[q][4]++;
     });
-
-    // 4. TREND (solo rifiuti)
+    
+    // 4. TREND
     const dateCount = {};
-    rifiutiData.forEach(s => {
-        const date = s.image_time ? s.image_time.split('T')[0] : 'Sconosciuto';
-        dateCount[date] = (dateCount[date] || 0) + 1;
+    apiData.forEach(s => {
+      const date = s.image_time ? s.image_time.split('T')[0] : 'Sconosciuto';
+      dateCount[date] = (dateCount[date] || 0) + 1;
     });
     const sortedDates = Object.keys(dateCount).sort();
     const trend = {
-        labels: sortedDates,
-        series: sortedDates.map(d => dateCount[d])
+      labels: sortedDates,
+      series: sortedDates.map(d => dateCount[d])
     };
-
+    
     return {
-        kpi: { totale, in_attesa, risolte, in_lavorazione },
-        trend,
-        quartieri,
-        top_indirizzi
+      kpi: { totale, in_attesa, risolte, in_lavorazione },
+      trend,
+      quartieri,
+      top_indirizzi
     };
   }
 
@@ -432,68 +537,68 @@ document.addEventListener('DOMContentLoaded', function() {
   // 4. FUNZIONE PER AGGIORNARE DASHBOARD
   // -----------------------------
   function updateDashboard(quartiere) {
-    const url = quartiere && quartiere !== 'all'
+    const url = quartiere && quartiere !== 'all' 
       ? `https://api.citylog.cloud/quartieri/segnalazioni-quartiere?quartiere=${encodeURIComponent(quartiere)}`
       : `https://api.citylog.cloud/quartieri/segnalazioni-quartiere`;
-
+    
     fetch(url, {
       headers: { 'accept': 'application/json' }
     })
     .then(r => r.json())
     .then(data => {
+      // 📊 TRASFORMA I DATI
       const transformed = transformApiData(data);
-
+      
+      // Aggiorna KPI
       document.getElementById('kpiTotale').textContent = transformed.kpi.totale || 0;
       document.getElementById('kpiAttesa').textContent = transformed.kpi.in_attesa || 0;
       document.getElementById('kpiRisolte').textContent = transformed.kpi.risolte || 0;
-
+      
+      // Aggiorna stato segnalazioni
       document.getElementById('statoRisolte').textContent = transformed.kpi.risolte || 0;
       document.getElementById('statoAttesa').textContent = transformed.kpi.in_attesa || 0;
       document.getElementById('statoLavorazione').textContent = transformed.kpi.in_lavorazione || 0;
       document.getElementById('statoTotale').textContent = transformed.kpi.totale || 0;
-
+      
+      // Aggiorna barre progresso
       const totale = transformed.kpi.totale || 1;
       document.getElementById('barRisolte').style.width = ((transformed.kpi.risolte || 0) / totale * 100) + '%';
       document.getElementById('barAttesa').style.width = ((transformed.kpi.in_attesa || 0) / totale * 100) + '%';
       document.getElementById('barLavorazione').style.width = ((transformed.kpi.in_lavorazione || 0) / totale * 100) + '%';
-
+      
+      // Aggiorna badge header
       document.querySelector('.badge.bg-primary-subtle').textContent = (transformed.kpi.totale || 0) + ' segnalazioni';
-
+      
+      // Aggiorna grafici
       if (Object.keys(transformed.quartieri).length > 0) {
         initTorta(transformed.quartieri);
       }
-
-      // ✅ AGGIORNA GRAFICO ANDAMENTO
-      console.log('🔄 Aggiornamento andamento con:', transformed.trend);
       if (transformed.trend && transformed.trend.labels && transformed.trend.labels.length > 0) {
+        //initPunti(transformed.trend);
         initAndamento(transformed.trend);
       } else {
-        const container = document.getElementById('puntiWrapper');
-        if (container) {
-            container.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato per questo quartiere</div>';
+        // Se non ci sono dati, mostra messaggio vuoto
+        const ctx = document.getElementById('chartPunti');
+        if (ctx) {
+            const parent = ctx.parentElement;
+            parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato per questo quartiere</div>';
         }
         puntiData = null;
-        if (puntiChart) {
-            puntiChart.destroy();
-            puntiChart = null;
-        }
       }
-
+      //if (transformed.trend && transformed.trend.labels.length > 0) {
+      //  initPunti(transformed.trend);
+      //}
+      
+      // Aggiorna top vie
       if (transformed.top_indirizzi && transformed.top_indirizzi.length > 0) {
         const container = document.getElementById('topVieContainer');
         container.innerHTML = transformed.top_indirizzi.slice(0, 6).map((addr, i) => `
           <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
-            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17"
-                target="_blank"
-                class="small text-truncate"
-                style="max-width: 75%; color: #0d6efd; text-decoration: none;"
-                title="Clicca per vedere le segnalazioni su mappa">
-                ${i+1}. ${addr.address.length > 35 ? addr.address.substring(0, 35) + '...' : addr.address}
-            </a>
-            <!--span class="badge bg-secondary rounded-pill px-3 flex-shrink-0"-->
-            <span class="badge rounded-pill px-3 flex-shrink-0"
-                  style="background-color: #facc15; color: #000000; font-weight: 600;">
-                ${addr.totale}
+            <span class="small text-truncate" style="max-width: 75%;">
+              ${i+1}. ${addr.address.length > 35 ? addr.address.substring(0, 35) + '...' : addr.address}
+            </span>
+            <span class="badge bg-secondary rounded-pill px-3 flex-shrink-0">
+              ${addr.totale}
             </span>
           </div>
         `).join('') || '<div class="text-center text-muted small py-3">Nessun dato disponibile</div>';
@@ -512,25 +617,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // -----------------------------
   // 6. INIZIALIZZA GRAFICI
   // -----------------------------
-  console.log('🚀 Inizializzazione grafici...');
-
-  // Inizializza torta
-  if (quartieriData && Object.keys(quartieriData).length > 0) {
-      initTorta(quartieriData);
-  } else {
-      console.warn('⚠️ Nessun dato quartieri');
-  }
-
-  // ✅ Inizializza andamento
-  if (trendData && trendData.labels && trendData.labels.length > 0) {
-      initAndamento(trendData);
-  } else {
-      console.warn('⚠️ Nessun dato trend, mostro messaggio vuoto');
-      const container = document.getElementById('puntiWrapper');
-      if (container) {
-          container.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato di andamento disponibile</div>';
-      }
-  }
+  initTorta(quartieriData);
+  initPunti(trendData);
 
   // -----------------------------
   // 7. OVERLAY
@@ -541,11 +629,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function openOverlay(chartType) {
     overlay.style.display = 'flex';
-
+    
     setTimeout(() => {
       const ctx = document.getElementById('overlayChart');
       if (overlayChart) overlayChart.destroy();
-
+      
       if (chartType === 'torta' && tortaData) {
         overlayChart = new Chart(ctx, {
           type: 'pie',
