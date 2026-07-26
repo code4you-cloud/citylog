@@ -14,11 +14,11 @@
             <ul>
                 <li><strong>Rifiuti:</strong> Seleziona questa voce per segnalare la presenza di rifiuti abbandonati.</li>
                 <li><strong>Tronchi:</strong> Seleziona questa voce per segnalare il taglio di alberi da fusto.</li>
-                <li><strong>Censimento:</strong> Seleziona questa voce per segnalare alberi, aree verdi o situazioni ambientali da censire.</li>
+                <li><strong>Censimento:</strong> Seleziona questa voce per segnalare alberi adulti, in aree verdi o situazioni ambientali da censire.</li>
                 <li><strong>Piantumazione:</strong> Seleziona questa voce per segnalare recenti piantumazioni oppure proporre la piantumazione di nuovi alberi o piante.</li>
             </ul>
         </div>
-        
+
         <form id="uploadForm" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
@@ -55,13 +55,13 @@
             </div>
 
             <div class="form-group">
-                <label for="{{ form.upload_image.id_for_label }}">Immagine</label>
+                <label for="{{ form.image_file.id_for_label }}">Immagine</label>
                 <div class="custom-file">
-                    {{ form.upload_image }}
-                    <label class="custom-file-label" for="{{ form.upload_image.id_for_label }}">Scegli file...</label>
+                    {{ form.image_file }}
+                    <label class="custom-file-label" for="{{ form.image_file.id_for_label }}">Scegli file...</label>
                 </div>
-                {% if form.upload_image.errors %}
-                <div class="invalid-feedback d-block">{{ form.upload_image.errors }}</div>
+                {% if form.image_file.errors %}
+                <div class="invalid-feedback d-block">{{ form.image_file.errors }}</div>
                 {% endif %}
                 <img id="imagePreview" class="preview-image mt-2 img-fluid rounded" src="#" alt="Anteprima immagine" style="display: none; max-height: 300px;">
                 <small class="form-text text-muted">Se l'immagine contiene dati GPS, verranno utilizzati automaticamente.</small>
@@ -155,7 +155,7 @@
                 '<div class="alert alert-success">Segnalazione inviata con successo!</div>';
             resetForm(true);
             setTimeout(() => {
-                window.location.href = '{% url "reports:report_success" %}';
+                window.location.href = '{#{% url "reports:report_success" %}#}';
             }, 1500);
         })
         .catch(error => {

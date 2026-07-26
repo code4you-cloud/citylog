@@ -43,6 +43,13 @@ INSTALLED_APPS = [
     'core',
     'report',
     'utilities',
+    'django_system_info',
+    'django_users_accounts',
+    'crispy_forms',
+    'crispy_bootstrap4',
+    'facebook_auth',
+
+    'rifiuti',  # o 'rifiuti.apps.RifiutiConfig'
 ]
 
 MIDDLEWARE = [
@@ -68,10 +75,17 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django_system_info.context_processors.system_info',
             ],
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+    'facebook_auth.backends.FacebookAuthBackend',  # Backend personalizzato per Facebook
+ )
 
 WSGI_APPLICATION = 'citylog.wsgi.application'
 
@@ -94,16 +108,16 @@ else:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'citylog',
             'USER': 'postgres',
-            'PASSWORD': '',
-            'HOST': '192.168.1.49',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     },
         'segnalazioni_db': {  # Database delle segnalazioni (da importare)
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'geodumbmail',
+            'NAME': 'geodumbmail_alembic',
             'USER': 'postgres',
-            'PASSWORD': 'postgres',
-            'HOST': '192.168.1.65',
+            'PASSWORD': 'postgres123',
+            'HOST': 'localhost',
             'PORT': '5432',
     }
 }
@@ -167,10 +181,60 @@ SERVER_EMAIL = 'noreply@citylog.cloud'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = False
 
-# facebook login
+# django-facebook-auth
 FACEBOOK_APP_ID = "1233024841238630"
 FACEBOOK_APP_SECRET = "2e4014a04501a202e71b9a5679155de5"
 FACEBOOK_REDIRECT_URI = "https://citylog.cloud/facebook/callback/"
 
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
+#SECURE_SSL_REDIRECT = True
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+#SOCIAL_AUTH_FACEBOOK_SCOPE = "email,public_profile"
+
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id, name, email'
+}
+
 # redirect to login facebook
-LOGIN_URL = '/'
+#LOGIN_URL = '/'
+
+# django-system-info
+SYSTEM_INFO_ENABLED = True
+import django
+DJANGO_VERSION = django.get_version()
+
+SYSTEM_INFO_TEMPLATE = "core/system_info.html"
+
+# django-simple-accounts
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+LOGIN_URL = 'login'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL ='login'
+LOGIN_REDIRECT_URL ='profile'
+
+# django-custom-storage
+DEFAULT_FILE_STORAGE = "custom_storage.backends.CustomMediaStorage"
+
+# django-custom-storage endpoint
+REMOTE_STORAGE_UPLOAD_URL = 'https://ws.citylog.cloud/upload'
+REMOTE_STORAGE_MEDIA_URL = 'https://ws.citylog.cloud/media'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',  # O 'DEBUG' per più dettagli
+            'class': 'logging.FileHandler',
+            'filename': '/usr/share/citylog/logs/error.log',  # Percorso del file di log
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}

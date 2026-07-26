@@ -1,141 +1,203 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-primary text-center">📊 Statistiche Ambientali</h1>
-    <p class="lead text-center">Analisi dettagliate della situazione ambientale e proiezioni future.</p>
+<div class="container-fluid px-4 py-3">
 
-    <div class="alert alert-info text-center">
-        Questa sezione raccoglie dati e previsioni basate sulle segnalazioni e sulle condizioni ambientali attuali.
+  <!-- Header della Pagina -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary m-0">📊 Statistiche Territoriali e Ambientali</h2>
+      <p class="text-muted small m-0">Dashboard integrata per l'analisi delle segnalazioni e dello stato dei quartieri.</p>
+    </div>
+    <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-6 px-3 py-2">Dati Aggiornati</span>
+  </div>
+
+  <!-- Row 1: KPI Sintetici In Alto (Compattezza) -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm border-start border-4 border-primary h-100">
+        <div class="card-body">
+          <div class="text-muted small fw-bold">TOTALE SEGNALAZIONI</div>
+          <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.totale|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm border-start border-4 border-warning h-100">
+        <div class="card-body">
+          <div class="text-muted small fw-bold">IN ATTESA DI INTERVENTO</div>
+          <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.in_attesa|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm border-start border-4 border-success h-100">
+        <div class="card-body">
+          <div class="text-muted small fw-bold">RISOLTE (ULTIMI 30 GG)</div>
+          <div class="fs-3 fw-bold text-dark mt-1">{{ kpi.risolte|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Griglia Grafici Principali (2 Colonne su Desktop) -->
+  <div class="row g-4 mb-4">
+    
+    <!-- Grafico 1: Trend Storico -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 fw-bold py-3 text-secondary">
+          📈 Andamento Storico Segnalazioni
+        </div>
+        <div class="card-body">
+          <div class="chart-wrapper">
+            <canvas id="chartAttuali"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Sezione: Dati Attuali -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white text-center">
-            <h5>🌍 Dati Ambientali Attuali</h5>
+    <!-- Grafico 2: Tipologia Rifiuti / Problemi -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 fw-bold py-3 text-secondary">
+          🏷️ Distribuzione per Tipologia
         </div>
-        <div class="card-body text-center">
-            <div class="chart-container">
-                <canvas id="chartDatiAttuali"></canvas>
-            </div>
+        <div class="card-body">
+          <div class="chart-wrapper">
+            <canvas id="chartPredittivo"></canvas>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Sezione: Dati Predittivi -->
-    <div class="card mb-4">
-        <div class="card-header bg-warning text-dark text-center">
-            <h5>📈 Previsioni e Andamenti</h5>
-        </div>
-        <div class="card-body text-center">
-            <div class="chart-container">
-                <canvas id="chartPredittivo"></canvas>
-            </div>
-        </div>
-    </div>
+  </div>
 
-    <!-- Sezione: Analisi per Zone -->
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white text-center">
-            <h5>📍 Analisi per Zone</h5>
+  <!-- Row 3: Analisi Dinamica per Zona / Quartiere -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <span class="fw-bold text-secondary">📍 Analisi Dettagliata per Quartiere</span>
+          
+          <!-- Selector Quartieri -->
+          <select class="form-select w-auto shadow-none border-secondary-subtle" id="quartiereSelect">
+            {% for q in quartieri_list %}
+              <option value="{{ q }}">{{ q }}</option>
+            {% empty %}
+              <option value="all">Tutti i Quartieri</option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="card-body text-center">
-            <select class="form-control mb-3 w-auto mx-auto" id="zoneSelect">
-                <option value="centro">Centro Città</option>
-                <option value="periferia">Periferia</option>
-                <option value="industriale">Zona Industriale</option>
-                <option value="parco">Parco Naturale</option>
-            </select>
-            <div class="chart-container">
-                <canvas id="chartZone"></canvas>
-            </div>
+        <div class="card-body">
+          <div class="chart-wrapper-wide">
+            <canvas id="chartZone"></canvas>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Footer -->
-    <div class="mt-5"></div> <!-- Spazio inferiore per bilanciare il layout -->
 </div>
 
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    function generaDatiCasuali(n, min, max) {
-        return Array.from({ length: n }, () => Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: { beginAtZero: true }
-        }
-    };
-
-    // Grafico Dati Attuali
-    new Chart(document.getElementById("chartDatiAttuali"), {
-        type: "bar",
-        data: {
-            labels: ["PM2.5", "PM10", "NO2", "CO2", "O3", "Rumore"],
-            datasets: [{
-                label: "Livelli attuali",
-                backgroundColor: "rgba(54, 162, 235, 0.7)",
-                borderColor: "rgba(54, 162, 235, 1)",
-                borderWidth: 1,
-                data: generaDatiCasuali(6, 10, 100)
-            }]
-        },
-        options: chartOptions
-    });
-
-    // Grafico Previsioni
-    new Chart(document.getElementById("chartPredittivo"), {
-        type: "bar",
-        data: {
-            labels: ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu"],
-            datasets: [{
-                label: "Trend inquinamento",
-                backgroundColor: "rgba(255, 159, 64, 0.7)",
-                borderColor: "rgba(255, 159, 64, 1)",
-                borderWidth: 1,
-                data: generaDatiCasuali(6, 20, 80)
-            }]
-        },
-        options: chartOptions
-    });
-
-    // Grafico Zone
-    let chartZone = new Chart(document.getElementById("chartZone"), {
-        type: "bar",
-        data: {
-            labels: ["Rifiuti", "Qualità Aria", "Verde Urbano", "Rumore"],
-            datasets: [{
-                label: "Dati per zona",
-                backgroundColor: "rgba(75, 192, 192, 0.7)",
-                borderColor: "rgba(75, 192, 192, 1)",
-                borderWidth: 1,
-                data: generaDatiCasuali(4, 5, 90)
-            }]
-        },
-        options: chartOptions
-    });
-
-    // Aggiornamento dinamico per zone
-    document.getElementById("zoneSelect").addEventListener("change", function () {
-        chartZone.data.datasets[0].data = generaDatiCasuali(4, 5, 90);
-        chartZone.update();
-    });
-
-</script>
-
+<!-- CSS di layout per garantire reattività senza rompere l'altezza -->
 <style>
-    .chart-container {
-        width: 100%;
-        max-width: 600px;
-        height: 300px;
-        margin: auto;
-    }
+  .chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px; /* Compatto ma ben visibile */
+  }
+  .chart-wrapper-wide {
+    position: relative;
+    width: 100%;
+    height: 320px;
+  }
 </style>
 
-<!-- Aggiunto lo stesso margine inferiore del top -->
-<div class="mt-5"></div>
-{% endblock %}
+<!-- Iniezione dati sicuri da Django -->
+{{ chart_attuali_data|json_script:"attuali-data" }}
+{{ chart_tipologia_data|json_script:"tipologia-data" }}
+{{ quartieri_dict_data|json_script:"quartieri-dict-data" }}
 
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: { beginAtZero: true, ticks: { precision: 0 } }
+      }
+    };
+
+    // 1. Grafico Attuali (Trend)
+    const rawAttuali = JSON.parse(document.getElementById('attuali-data').textContent || '{}');
+    new Chart(document.getElementById("chartAttuali"), {
+      type: "line",
+      data: {
+        labels: rawAttuali.labels || [],
+        datasets: [{
+          label: "Segnalazioni",
+          data: rawAttuali.series || [],
+          borderColor: "#2563eb",
+          backgroundColor: "rgba(37, 99, 235, 0.1)",
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: chartOptions
+    });
+
+    // 2. Grafico Tipologie
+    const rawTipologie = JSON.parse(document.getElementById('tipologia-data').textContent || '{}');
+    new Chart(document.getElementById("chartPredittivo"), {
+      type: "bar",
+      data: {
+        labels: rawTipologie.labels || [],
+        datasets: [{
+          data: rawTipologie.series || [],
+          backgroundColor: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"]
+        }]
+      },
+      options: chartOptions
+    });
+
+    // 3. Grafico Dinamico Quartieri
+    const quartieriMap = JSON.parse(document.getElementById('quartieri-dict-data').textContent || '{}');
+    const selectEl = document.getElementById("quartiereSelect");
+
+    let chartZone = new Chart(document.getElementById("chartZone"), {
+      type: "bar",
+      data: {
+        labels: ["Rifiuti", "Strade", "Verde", "Illuminazione"],
+        datasets: [{
+          label: "Stato segnalazioni",
+          backgroundColor: "#0d9488",
+          data: []
+        }]
+      },
+      options: chartOptions
+    });
+
+    // Funzione per aggiornare il grafico in base al quartiere selezionato
+    function updateQuartiereChart(quartiereKey) {
+      const dataForQuartiere = quartieriMap[quartiereKey] || [0, 0, 0, 0];
+      chartZone.data.datasets[0].data = dataForQuartiere;
+      chartZone.update();
+    }
+
+    // Inizializza col primo valore del selector
+    if (selectEl.value) {
+      updateQuartiereChart(selectEl.value);
+    }
+
+    selectEl.addEventListener("change", function (e) {
+      updateQuartiereChart(e.target.value);
+    });
+  });
+</script>
+{% endblock %}

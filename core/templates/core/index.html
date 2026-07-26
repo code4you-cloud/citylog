@@ -35,11 +35,11 @@
                             <div class="card h-100">
                                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                                     <h1 class="display-2 text-primary"><span class="ion ion-ios-car-outline"></span></h1>
-                                    <h4 class="card-title text-primary">Rete</h4>
+                                    <h4 class="card-title text-primary">Strade</h4>
                                     <p class="card-text">Citylog consente ai cittadini di segnalare buche e dissesti stradali, 
                                     contribuendo a migliorare la sicurezza e la viabilità urbana. Le segnalazioni vengono raccolte 
                                     anche per creare una mappa dedicata, utile per interventi mirati..</p>
-                                    <a href="{% url 'core:segnalazioni-list' %}?typo=rete" class="btn btn-primary mt-auto">Button</a>
+                                    <a href="{% url 'core:segnalazioni-list' %}?typo=strade" class="btn btn-primary mt-auto">Button</a>
                                 </div>
                             </div>
                         </div>
@@ -54,14 +54,14 @@
                     <h4>Pochi e semplici passi per iniziare.</h4>
                     <p class="lead">
                         Bastano pochi semplici passi per contribuire a migliorare la tua città!
-                        responsive Web apps. <a class="font-weight-bold" href="https://themestr.app">Themestr.app</a> is a customizer 
-                        and theme creator for Bootstrap. 
+                        Scarica la nostra app. <a class="font-weight-bold" href="https://themestr.app">citylog.app</a> per iniziare ad
+                        inviarci le tue segnalazioni. 
                     </p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-4 mb-4">
-                     <div class="card bg-primary text-white h-100">
+                     <div class="card bg-success text-white h-100">
                          <div class="card-body d-flex flex-column align-items-start">
                              <h4 class="card-title">Scarica l'app</h4>
                              <p class="card-text">Bastano pochi semplici passi per contribuire a migliorare la tua città!</p>
@@ -70,16 +70,16 @@
                      </div>
                  </div>
                  <div class="col-lg-4 mb-4">
-                     <div class="card border-primary h-100">
+                     <div class="card bg-secondary border-primary text-white h-100">
                          <div class="card-body d-flex flex-column align-items-start">
-                             <h4 class="card-title text-primary">Collegati a Citylog</h4>
+                             <h4 class="card-title text-white">Collegati a Citylog</h4>
                              <p class="card-text">Accedi con il tuo account Facebook.</p>
-                             <a href="#" class="btn btn-primary mt-auto">Accedi</a>
+                             <a href="#" class="btn btn-primary mt-auto">Download</a>
                          </div>
                      </div>
                  </div>
                  <div class="col-lg-4 mb-4">
-                      <div class="card bg-primary text-white h-100">
+                      <div class="card bg-info text-white h-100">
                           <div class="card-body d-flex flex-column align-items-start">
                               <h4 class="card-title">Inquadra & Invia</h4>
                               <p class="card-text">Scatta una foto e segnala un problema.</p>
@@ -104,7 +104,11 @@
                 class="btn btn-primary">
                 <i class="fab fa-facebook"></i> Accedi con Facebook
             </a-->
-            <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email"      class="btn btn-primary">
+            <a href="{{ facebook_url }}" class="btn btn-primary">
+                <i class="fab fa-facebook"></i> Login con Facebook-new
+            </a>
+
+            <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email" class="btn btn-primary">
             <i class="fab fa-facebook"></i> Login con Facebook
              </a>
 
@@ -114,8 +118,8 @@
                 </button>
             {% else %}
                 <a href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email"
-                   class="btn btn-primary">
-                    <i class="fab fa-facebook"></i> Login con Facebook
+                   class="btn btn-warning">
+                    <i class="fab fa-facebook"></i> Not Logged! Login con Facebook
                 </a>
             {% endif %}
 

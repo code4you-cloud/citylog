@@ -7,23 +7,6 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 
-class AuthUser(models.Model):
-    password = models.CharField(max_length=128)
-    last_login = models.DateTimeField(blank=True, null=True)
-    is_superuser = models.BooleanField()
-    username = models.CharField(unique=True, max_length=150)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150)
-    email = models.CharField(max_length=254)
-    is_staff = models.BooleanField()
-    is_active = models.BooleanField()
-    date_joined = models.DateTimeField()
-
-    class Meta:
-        managed = False
-        db_table = 'auth_user'
-
-
 class EmailsEmaildata(models.Model):
     id = models.BigAutoField(primary_key=True)
     latitude = models.CharField(max_length=50)
@@ -43,6 +26,7 @@ class EmailsEmaildata(models.Model):
     class Meta:
         managed = False
         db_table = 'emails_emaildata'
+        app_label = 'rifiuti'  # ← Per il router
 
 
 class FreeWeb(models.Model):
@@ -84,6 +68,7 @@ class UserRateLimit(models.Model):
     class Meta:
         managed = False
         db_table = 'user_rate_limit'
+        app_label = 'rifiuti'  # ← Per il router
 
 
 class Users(models.Model):
@@ -102,3 +87,4 @@ class Users(models.Model):
     class Meta:
         managed = False
         db_table = 'users'
+        app_label = 'rifiuti'  # ← Per il router

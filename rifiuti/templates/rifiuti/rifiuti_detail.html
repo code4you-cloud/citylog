@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="card shadow-sm p-4">
+        <h1 class="text-primary"><i class="fas fa-trash-alt"></i> Dettaglio Segnalazione {{segnalazione.id}}</h1>
+
+        <!-- Dettagli della segnalazione -->
+        <h3 class="mt-3">{{ segnalazione.luogo }}</h3>
+        <p><strong>Data Segnalazione:</strong> {{ segnalazione.data_segnalazione|date:"d/m/Y H:i" }}</p>
+        <p><strong>Stato:</strong> <span class="badge badge-info">{{ segnalazione.get_stato_display }}</span></p>
+        
+        {% if segnalazione.immagine %}
+            <img src="{{ segnalazione.immagine.url }}" class="img-fluid mt-3" alt="Immagine rifiuti">
+        {% else %}
+            <img src="{{ MEDIA_URL }}no_Image_available.jpg" class="img-fluid mt-3" alt="Nessuna immagine disponibile">
+        {% endif %}
+
+        <p class="mt-3">{{ segnalazione.descrizione }}</p>
+        
+        <a href="{% url 'core:segnalazioni-list' %}" class="btn btn-secondary mt-3">Torna alla lista</a>
+    </div>
+</div>
+
+{% endblock %}
+

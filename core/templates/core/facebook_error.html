@@ -1,0 +1,11 @@
+<!-- templates/core/facebook_error.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="alert alert-danger text-center mt-5">
+    <h2>Errore durante l'autenticazione con Facebook</h2>
+    <p>{{ error }}</p>
+    <a href="{% url 'core:home' %}" class="btn btn-primary mt-3">Torna alla home</a>
+  </div>
+{% endblock %}
+

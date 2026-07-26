@@ -1,0 +1,15 @@
+<!-- templates/conferma_eliminazione.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Conferma eliminazione</h2>
+    <p>Sei sicuro di voler eliminare il tuo {{ action }}? Questa azione è irreversibile.</p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Conferma</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">Annulla</a>
+    </form>
+</div>
+{% endblock %}

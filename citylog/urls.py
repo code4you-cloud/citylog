@@ -20,16 +20,27 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.auth.views import LogoutView
 
-from core.views import facebook_callback, dashboard
+from core.views import facebook_callback, dashboard, elimina_utente, elimina_dati_personali, privacy_policy
+
+
+# URL patterns dall'app "blog"
+privacy_urls = [
+    path('elimina_utente/', elimina_utente, name='elimina_utente'),
+    path('elimina_dati_personali/', elimina_dati_personali, name='elimina_dati_personali'),
+    path('privacy/', privacy_policy, name='privacy_policy'),  # Nuovo endpoint
+]
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls', namespace='core')),
     path('report/', include('report.urls', namespace='report')),
+    path('rifiuti/', include('rifiuti.urls', namespace='rifiuti')),
+    path('account/', include('django_users_accounts.urls')),
     path("facebook/callback/", facebook_callback, name="facebook-callback"),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    #path("logout/", LogoutView.as_view(), name="logout"),
     path("dashboard/", dashboard, name="dashboard"),
-]
+] + privacy_urls
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

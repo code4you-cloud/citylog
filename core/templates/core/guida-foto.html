@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-primary">Guida alla Fotografia di Segnalazioni</h1>
+    <p class="text-muted">Ultimo aggiornamento: {{ last_update|default:"Marzo 2025" }}</p>
+
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title">1. Finalit&agrave; del Progetto</h5>
+            <p>La qualit/&agrave; delle immagini caricate è fondamentale per rendere le segnalazioni utili, verificabili e analizzabili dalla nostra piattaforma, oltre che per futuri sviluppi AI che potranno stimare dimensioni, quantità e tipologia dei rifiuti.</p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">2. Cosa e come fotografare</h5>
+            <ul>
+                <li>Rifiuti urbani abbandonati: sacchi, mobili, materiali ingombranti, rifiuti pericolosi visibili.</li>
+                <li><b>Verde urbano compromesso</b>: tronchi caduti, alberi abbattuti, erosione del terreno.</li>
+                <li><b>Disservizi generali</b>: buche, caditoie otturate, erosioni, zone con degrado diffuso.</li>
+                <p><b>Evita</b> di fotografare persone, volti, targhe o qualsiasi dato identificativo..</p>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <h5 class="card-title">3. Consigli per scatti efficaci</h5>
+            <ul>
+                <li><b>Inquadratura completa</b>: mostra l’oggetto nella sua interezza, includendo parte dell’ambiente circostante.</li>
+                <li><b>Distanza adeguata</b>: mantieni una distanza sufficiente per catturare la dimensione totale dell’oggetto.</li>
+                <li><b>Illuminazione</b>: preferibile luce naturale. Evita zone troppo buie o controluce.</li>
+                <li><b>Stabilità del telefono<b/>: mantieni il telefono ferma per evitare foto sfocate.</li>
+                <li><b>Riferimenti dimensionali</b>: se possibile, includi oggetti standard di riferimento (panchina, cestino, marciapiede) per aiutare la piattaforma a stimare dimensioni e proporzioni.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+         <div class="card-body">
+             <h5 class="card-title">4. Sequenza consigliata</h5>
+             <ul>
+                 <li>Foto panoramica dell’area (contesto generale).</b></li>
+                 <li>Foto ravvicinata dell’oggetto principale (rifiuto, tronco, degrado).</li>
+                 <li>Foto laterali o da un’altra angolazione per migliorare la visibilità.</li>
+
+            </ul>
+         </div>
+     </div>
+
+     <div class="card mt-3">
+          <div class="card-body">
+              <h5 class="card-title">5. Come contribuire alla qualit&agrave; dei dati</h5>
+              <ul>
+                  <li>Carica solo immagini pertinenti e <b>non alterate</b>.</b></li>
+                  <li>Invia immagini <b>chiare e leggibili</b>, evitando tagli o ritagli eccessivi.</li>
+                <li>Segnala correttamente la posizione sulla mappa: la geolocalizzazione precisa aiuta a costruire mappe affidabili e dati utili per analisi e open data</li>
+              </ul>
+          </div>
+      </div>
+
+      <div class="card mt-3">
+           <div class="card-body">
+               <h5 class="card-title">6. Finalit&agrave; della buona qualità</h5>
+               <ul>
+                   <li>Migliorare la verifica e la gestione dei disservizi urbani.</li>
+                   <li>Consentire alla piattaforma di costruire mappe accurate e statistiche affidabili.</li>
+                   <li>Fornire dati strutturati per futuri sviluppi AI su <b>dimensioni, tipologie e quantit&agrave;</b> degli oggetti segnalati.</li>
+               </ul>
+           </div>
+       </div>
+
+    <div class="mt-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Torna alla Dashboard</a>
+    </div>
+</div>
+<!-- Aggiunto lo stesso margine inferiore del top -->
+<div class="mt-5"></div>
+{% endblock %}
+
