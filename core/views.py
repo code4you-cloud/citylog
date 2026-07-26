@@ -1,5 +1,7 @@
 import logging
 import requests
+import traceback
+import json
 
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView
@@ -16,6 +18,13 @@ from django.contrib.auth.decorators import login_required
 
 from report.models import Report
 from .models import EmailsEmaildata, Users, Trees
+
+from facebook_auth.client import FacebookAuthClient
+from facebook_auth.exceptions import FacebookAuthError
+
+from django.utils import timezone
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDay
 
 #from .models import EmailsEmaildata
 
@@ -46,11 +55,12 @@ class RifiutiListView(ListView):
 
         # Definisci i titoli e le descrizioni in base al tipo di pagina
         page_titles = {
-            "ambiente": ("Monitoraggio Ambientale", "Scopri le segnalazioni ambientali nella tua città."),
-            "rete": ("Rete Stradale", "Partecipa alla segnalazione della rete stradale."),
-            "rifiuti": ("Monitoraggio Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
-            "buche": ("Buche", "Monitora le buche o dissesti stradali pericolosi."),
-            "inquinamento": ("Inquinamento", "Visualizzate le % inquinanti."),
+            "ambiente": ("Log.Ambiente", "Scopri le segnalazioni ambientali nella tua città. Le segnalazioni evidenziano: erosione-arboreo - censimento arboreo - nuove piantumazioni arboree"),
+            "rete": ("Log.Traffico", "Partecipa alla segnalazione della rete stradale."),
+            "rifiuti": ("Log.Rifiuti", "Partecipa alla segnalazione dei rifiuti de.allocati nell'ambiente cittadino."),
+            "strade": ("Log.Strade", "Monitora le tue strade, i dissesti stradali pericolosi per la tua incolumità e viabilità."),
+            "inquinamento": ("Log.Aria", "Visualizzate le % inquinanti."),
+            "dashboard": ("Dashboard", "La tua Dashboard personale."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
         }
@@ -167,6 +177,89 @@ class RegoleView(TemplateView):
             context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
             return context
 
+# Vista per la pagina trasparenza
+class TrasparenzaView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/trasparenza.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/trasparenza/' in path:
+               page_type = "trasparenza"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "trasparenza": ("Trasparenza", "La nostra Roadmap trasparente."),
+                "default": ("Trasparenza", "Trasparenza."),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+
+# Vista per la pagina guida-foto
+class GuidaFotoView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/guida-foto.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/guida-foto/' in path:
+               page_type = "guida-foto"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "guida-foto": ("Guida Foto", "Alcuni consigli come segnalare."),
+                "default": ("Guida Foto", "Guida Foto."),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+# Vista per la pagina guida-foto
+class MotivazioniView(TemplateView):
+    model = EmailsEmaildata
+    template_name = "core/motivazioni.html"
+
+    def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+
+            # Ottieni il parametro dalla query string (es. ?tipo=ambiente)
+            path = self.request.path
+            if '/motivazioni/' in path:
+               page_type = "motivazioni"
+            else:
+               page_type = "default"
+            #page_type = self.request.GET.get("page", "default")
+
+            # Definisci i titoli e le descrizioni in base al tipo di pagina
+            page_titles = {
+                "motivazioni": ("Motivazioni", "Perchè dovresti farlo."),
+                "default": ("Motivazioni", "Motivazioni"),
+            }
+
+            # Imposta i valori di default se il tipo non è riconosciuto
+            context["page_title"], context["page_description"] = page_titles.get(page_type, page_titles["default"])
+            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
+            return context
+
+
 # Vista per la pagina regolamento
 class ApiView(TemplateView):
     model = EmailsEmaildata
@@ -194,8 +287,43 @@ class ApiView(TemplateView):
           context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
           return context
 
-# Vista per la pagina regolamento
 class StatisticheView(TemplateView):
+    template_name = "core/statistiche.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # KPI
+        context["kpi"] = {
+            "totale": EmailsEmaildata.objects.count(),
+            "in_attesa": EmailsEmaildata.objects.filter(status="in_attesa").count(),
+            "risolte": EmailsEmaildata.objects.filter(status="risolto").count(),
+        }
+
+        # Trend ultimi giorni
+        context["chart_attuali_data"] = {
+            "labels": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"],
+            "series": [12, 19, 3, 5, 2, 3, 9],
+        }
+
+        # Per Tipologia
+        context["chart_tipologia_data"] = {
+            "labels": ["Ingombranti", "Abbandono", "Cassonetto Pieno", "Verde"],
+            "series": [45, 23, 15, 8],
+        }
+
+        # Mappa Dati per Quartiere (usata dal select JS)
+        context["quartieri_list"] = ["Centro", "Mazzini", "San Zeno"]
+        context["quartieri_dict_data"] = {
+            "Centro": [15, 8, 4, 2],
+            "Mazzini": [5, 12, 9, 1],
+            "San Zeno": [8, 3, 14, 6],
+        }
+
+        return context
+
+# Vista per la pagina regolamento
+class StatisticheView_ori(TemplateView):
     model = EmailsEmaildata
     template_name = "core/statistiche.html"
 
@@ -221,7 +349,130 @@ class StatisticheView(TemplateView):
            context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
            return context
 
+
 def facebook_callback(request):
+    try:
+        logger.debug("Facebook callback GET params: %s", request.GET)
+
+        code = request.GET.get("code")
+        if not code:
+            logger.warning("Nessun code fornito nella callback")
+            return redirect("core:home")
+
+        # 🔹 Scambio del code con access token
+        token_url = f"https://graph.facebook.com/v17.0/oauth/access_token"
+        params = {
+            "client_id": settings.FACEBOOK_APP_ID,
+            "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+            "client_secret": settings.FACEBOOK_APP_SECRET,
+            "code": code,
+        }
+        response = requests.get(token_url, params=params)
+        token_data = response.json()
+        logger.debug("Token data: %s", token_data)
+
+        access_token = token_data.get("access_token")
+        if not access_token:
+            logger.error("Access token non disponibile: %s", token_data)
+            return redirect("core:home")
+
+        # 🔹 Ottieni dati utente
+        user_info_url = "https://graph.facebook.com/me"
+        user_params = {
+            "fields": "id,name,email,picture",
+            "access_token": access_token,
+        }
+        user_response = requests.get(user_info_url, params=user_params)
+        user_data = user_response.json()
+        logger.debug("Facebook user_data: %s", user_data)
+
+        facebook_id = user_data.get("id")
+        name = user_data.get("name")
+        email = user_data.get("email")
+        picture_url = user_data.get("picture", {}).get("data", {}).get("url")
+
+        # 🔹 Usa facebook_id come fallback per username
+        username = email or facebook_id
+        if not username:
+            logger.error("Né email né facebook_id disponibili, redirect")
+            return redirect("core:manifesto-view")
+
+        # 🔹 Creazione o autenticazione dell'utente
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={"first_name": name or "", "email": email or ""}
+        )
+        logger.debug("User ottenuto: %s, creato: %s", user.username, created)
+
+        # 🔹 Salva dati in sessione
+        request.session['facebook_picture'] = picture_url
+        request.session['facebook_name'] = name
+
+        # 🔹 Autentica utente
+        login(request, user, backend='facebook_auth.backends.FacebookAuthBackend')
+        logger.debug("Login Django effettuato per: %s", user.username)
+
+        return redirect("core:dashboard")
+
+    except Exception as e:
+        logger.error("Errore nella facebook_callback: %s", e)
+        logger.error(traceback.format_exc())
+        return redirect("core:manifesto-view")
+
+def facebook_callback_good(request):
+     code = request.GET.get("code")
+     if not code:
+         return redirect("core:home")
+
+     # Scambio del codice con un access token
+     token_url = "https://graph.facebook.com/v17.0/oauth/access_token"
+     params = {
+         "client_id": settings.FACEBOOK_APP_ID,
+         "redirect_uri": settings.FACEBOOK_REDIRECT_URI,
+         "client_secret": settings.FACEBOOK_APP_SECRET,
+         "code": code,
+     }
+     response = requests.get(token_url, params=params)
+     token_data = response.json()
+
+     access_token = token_data.get("access_token")
+     if not access_token:
+         return redirect("core:home")
+
+     # Ottenere i dati dell'utente
+     user_info_url = "https://graph.facebook.com/me"
+     user_params = {
+         "fields": "id,name,email,picture",
+         "access_token": access_token,
+     }
+     user_response = requests.get(user_info_url, params=user_params)
+     user_data = user_response.json()
+
+     facebook_id = user_data.get("id")
+     name = user_data.get("name")
+     email = user_data.get("email")
+     picture_url = user_data.get("picture", {}).get("data", {}).get("url")
+
+     # Usa facebook_id come username se email non è disponibile
+     username = email if email else facebook_id
+     if not username:
+         return redirect("core:manifesto-view")  # Reindirizza se né email né facebook_id sono disponibili
+
+     # Creazione o autenticazione dell'utente
+     user, created = User.objects.get_or_create(
+         username=username,
+         defaults={"first_name": name or "", "email": email or ""}
+     )
+
+     # Salva i dati nella sessione
+     request.session['facebook_picture'] = picture_url
+     request.session['facebook_name'] = name
+
+     # Autentica l'utente
+     login(request, user, backend='facebook_auth.backends.FacebookAuthBackend')
+     return redirect("core:dashboard")
+
+def facebook_callback_(request):
     code = request.GET.get("code")
     if not code:
         return redirect("core:home")
@@ -276,3 +527,34 @@ def facebook_callback(request):
 def dashboard(request):
     user_reports = Report.objects.filter(user=request.user).order_by('-image_time')  # Filtra per utente autenticato
     return render(request, 'core/dashboard.html', {'reports': user_reports, "MEDIA_URL": settings.MEDIA_URL})
+
+
+# views.py
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
+@login_required
+def elimina_utente(request):
+    if request.method == 'POST':
+        user = request.user
+        user.delete()  # Cancella l'utente e i dati collegati (se on_delete=CASCADE)
+        messages.success(request, "Account eliminato con successo.")
+        return redirect('home')
+    return render(request, 'conferma_eliminazione.html', {'action': 'account'})
+
+@login_required
+def elimina_dati_personali(request):
+    if request.method == 'POST':
+        user = request.user
+        # Anonimizzazione dati (esempio minimo)
+        user.email = f"deleted_{user.id}@example.com"
+        user.first_name = "Deleted"
+        user.last_name = "User"
+        user.save()
+        messages.success(request, "Dati personali rimossi con successo.")
+        return redirect('home')
+    return render(request, 'conferma_eliminazione.html', {'action': 'dati'})
+
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')

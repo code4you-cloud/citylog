@@ -71,23 +71,5 @@
             }
         }
         content = arrayOfLines.join('\n');
-        //var title = "Click to view/copy source";
-
-        //$this.addClass("copyable");
-        //var trigger = $("<a href class='copyable-trigger'>&lt;&gt;</a>");
-        //$this.append(trigger);
-
-        //trigger.tooltip({
-        //    title: title,
-        //    placement: 'bottom',
-        //    trigger: 'hover'
-        //});
-
-        //trigger.on('click',function(e){
-        //    copyTextToClipboard(content);
-        //    $("#code").text(content);
-        //    $("#modalCode").modal('show');
-        //    return false;
-        });
     });
 

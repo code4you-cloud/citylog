@@ -1,0 +1,33 @@
+<!-- templates/privacy_policy.html -->
+<!-- templates/privacy_policy.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Privacy Policy - {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="container privacy-policy">
+    <!-- Titolo e introduzione -->
+    <h1 class="mb-4">{% block privacy_title %}Informativa sulla Privacy{% endblock %}</h1>
+
+    <!-- Blocco per i diritti dell'utente (centralizzato) -->
+    {% block privacy_user_rights %}
+    <section class="mb-5">
+        <h3>Diritti dell'utente</h3>
+        <p>Puoi richiedere in qualsiasi momento:</p>
+        <ul>
+            <li><a href="{% url 'elimina_dati_personali' %}">Eliminazione dei dati personali</a></li>
+            <li><a href="{% url 'elimina_utente' %}">Cancellazione del tuo account</a></li>
+        </ul>
+    </section>
+    {% endblock %}
+
+    <!-- Blocco per la regolamentazione (dinamico) -->
+    {% block privacy_regulations %}
+    <section class="mb-5">
+        <h3>Regolamentazione minima</h3>
+        <p>{{ PRIVACY_DISCLAIMER|default:"I tuoi dati sono trattati nel rispetto del GDPR." }}</p>
+    </section>
+    {% endblock %}
+</div>
+{% endblock %}

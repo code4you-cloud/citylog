@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <!-- Titolo -->
+    <div class="text-center mb-4">
+        <h1 class="text-primary">
+            <i class="fas fa-city"></i> Finalità del Censimento Urbano
+        </h1>
+        <p class="lead text-muted">
+            Un’iniziativa civica per la tutela, la prevenzione e la conoscenza del territorio
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+
+            <!-- Sezione 1 -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body">
+                    <h3 class="text-success"><i class="fas fa-scroll"></i> Missione del Progetto</h3>
+                    <p>
+                        Il censimento urbano promosso da <strong>CityLog</strong> nasce con l’obiettivo di 
+                        supportare una conoscenza più accurata, trasparente e condivisa dello stato reale del territorio.
+                        Attraverso le segnalazioni dei cittadini—documentate fotograficamente e geolocalizzate—
+                        è possibile costruire una <strong>banca dati civica</strong> capace di descrivere fenomeni presenti,
+                        ricorrenti o emergenti nelle aree urbane.
+                    </p>
+
+                    <p>
+                        La piattaforma non si limita alla raccolta di immagini: svolge il ruolo di 
+                        <strong>osservatorio cittadino diffuso</strong>, contribuendo a individuare criticità, 
+                        comportamenti d’uso degli spazi pubblici e dinamiche ambientali che spesso non sono rilevabili
+                        dagli strumenti di monitoraggio istituzionale tradizionali.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Sezione 2 -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-body">
+                    <h3 class="text-primary"><i class="fas fa-database"></i> Valore dei Dati Raccolti</h3>
+                    <p>
+                        Le segnalazioni contribuiscono alla creazione di un archivio georeferenziato 
+                        consultabile nel tempo, utile per analisi ambientali, urbanistiche e sociali.
+                        Tra le principali applicazioni:
+                    </p>
+
+                    <ul class="list-group list-group-flush mt-3">
+                        <li class="list-group-item">
+                            <strong>1. Monitoraggio dei comportamenti urbani</strong><br>
+                            La localizzazione ricorrente di rifiuti, abbandoni o pratiche scorrette
+                            permette di comprendere come alcuni spazi vengano utilizzati o trascurati.
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>2. Analisi del consumo e della qualità del suolo</strong><br>
+                            Le segnalazioni aiutano a individuare aree degradate, zone abbandonate o aree 
+                            a rischio di erosione ambientale.
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>3. Monitoraggio del verde e delle alberature</strong><br>
+                            L’identificazione di ceppaie, abbattimenti, alberi malati o aree verdi compromesse 
+                            permette di costruire un quadro aggiornato e realistico della salute del patrimonio arboreo.
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>4. Supporto a studi e valutazioni tecniche</strong><br>
+                            I dati aggregati possono essere impiegati per ricerche, modelli predittivi,
+                            sistemi di intelligenza artificiale e progetti basati su <a class="text-danger" href="https://www.agid.gov.it/it/ambiti-intervento/open-data">Open Data</a>
+                        </li>
+
+                        <li class="list-group-item">
+                            <strong>5. Documentazione storica e trasparenza civica</strong><br>
+                            Ogni segnalazione costituisce un elemento di memoria collettiva, utile a comprendere
+                            come evolve il tessuto urbano e a favorire processi più trasparenti.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sezione 3 -->
+            <div class="card shadow-lg border-0">
+                <div class="card-body">
+                    <h3 class="text-danger"><i class="fas fa-users"></i> Il Ruolo della Comunità</h3>
+                    <p>
+                    <strong>CityLog</strong> si fonda sul principio della <a class="text-danger" href="https://www.coe.int/it/web/compass/citizenship-and-participation">partecipazione attiva e responsabile</a>.  
+                        Ogni cittadino, con una semplice segnalazione, contribuisce alla costruzione 
+                        di un ecosistema informativo utile all’intera collettività.
+                    </p>
+
+                    <p>
+                        La collaborazione diffusa permette di:
+                    </p>
+
+                    <ul>
+                        <li>favorire una maggiore responsabilità condivisa nella tutela degli spazi comuni;</li>
+                        <li>migliorare la capacità di intervento su criticità ricorrenti;</li>
+                        <li>aumentare la qualità della vita nei quartieri;</li>
+                        <li>fornire dati utili per decisioni future, progettazione e prevenzione.</li>
+                    </ul>
+
+                    <p class="mt-3">
+                        La piattaforma, pur essendo in fase di sviluppo, mira a diventare un riferimento civico 
+                        per chi desidera contribuire attivamente al miglioramento della città.
+                    </p>
+
+                    <div class="text-center mt-4">
+                        <a href="/segnala/" class="btn btn-primary btn-lg">
+                            <i class="fas fa-camera"></i> Invia una Segnalazione
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="mt-5"></div>
+</div>
+{% endblock %}
+

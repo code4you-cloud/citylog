@@ -12,11 +12,12 @@ from django.views.decorators.http import require_http_methods
 from django.conf import settings
 from django.urls import reverse
 
-from .forms import ReportWebForm
+from .forms import ReportWebForm, ReportForm
 from .models import Report, get_image_path  # Assicurati di importarlo correttamente
 #from utilities.ai_utils import classify_image
 
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.views.generic import ListView
 from django.contrib import messages
@@ -115,6 +116,17 @@ def geocode_city(city):
         logger.error(f"Errore nella geocodifica: {e}")
         return None
 
+#def create_report_(request):
+#    if request.method == "POST":
+#        form = ReportForm(request.POST, request.FILES)
+#        if form.is_valid():
+#            report = form.save()  # il file sarà salvato in remoto grazie a CustomRemoteStorage
+#            return redirect(reverse('reports:report_success', kwargs={'report_id': report.id}))
+#    else:
+#        form = ReportForm()
+#    return render(request, 'report/create_report.html', {'form': form})
+#
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def create_report(request):
@@ -125,7 +137,7 @@ def create_report(request):
             city = form.cleaned_data['city']
             address = form.cleaned_data['address']
             description = form.cleaned_data['description']
-            upload_image = form.cleaned_data.get('upload_image')
+            image_file = form.cleaned_data['image_file']
 
             logger.info(f"Ricevuta richiesta freeweb con city={city}, address={address}")
 
@@ -138,24 +150,26 @@ def create_report(request):
 
             # Se c'è un'immagine, estrai i dati EXIF
             file_path = None
-            if upload_image:
+            if image_file:
                 # Salva temporaneamente l'immagine
                 #file_path = f"temp/{upload_image.name}"
                 #os.makedirs("temp", exist_ok=True)
 
-                temp_dir = os.path.join(settings.MEDIA_ROOT, "uploaded_images/report")
-                os.makedirs(temp_dir, exist_ok=True)
+                ##temp_dir = os.path.join(settings.MEDIA_ROOT, "uploaded_images/report")
+                ##os.makedirs(temp_dir, exist_ok=True)
 
                 # Percorso completo del file
-                file_path = os.path.join(temp_dir, upload_image.name)
+                ##file_path = os.path.join(temp_dir, upload_image.name)
 
-                with open(file_path, "wb+") as destination:
-                    for chunk in upload_image.chunks():
-                        destination.write(chunk)
+                ##with open(file_path, "wb+") as destination:
+                ##    for chunk in upload_image.chunks():
+                ##        destination.write(chunk)
 
                 # Estrai dati EXIF e coordinate GPS
-                exif_data = get_exif_data(file_path)
+                exif_data = get_exif_data(image_file.file)
                 gps_info = get_gps_info(exif_data) if exif_data else None
+                #exif_data = get_exif_data(file_path)
+                #gps_info = get_gps_info(exif_data) if exif_data else None
 
                 if gps_info:
                     latitude, longitude = gps_info
@@ -185,8 +199,8 @@ def create_report(request):
                 image_time=image_time,
                 image_id=image_id,
                 #image_url=None,
-                #image_url=upload_image if upload_image else None,
-                image_file=upload_image if upload_image else None,
+                #image_url=image_file.url if image_file.url else None,
+                image_file=image_file if image_file else None,
                 status="pending",
                 typo="web",
                 description=description,
@@ -196,18 +210,21 @@ def create_report(request):
             #categoria_predetta = classify_image(segnalazione.immagine.path)
             #report.typo = categoria_predetta
 
-            report.save()
+            #report.save()
 
             # Ora assegna il valore corretto a image_url e salva di nuovo
-            if upload_image:
-                report.image_url = f"{get_image_path(report, upload_image.name)}"
+            if report.image_file:
+                report.image_url = report.image_file.url
+                #report.image_url = f"{get_image_path(report, image_file.name)}"
                 report.save()
+                logger.warning(f"Risultato per image_file: {report.image_file}")
+                logger.warning(f"Risultato per image_file_url: {report.image_file.url}")
 
             # Pulisci il file temporaneo se necessario
-            if file_path and os.path.exists(file_path):
-                os.remove(file_path)
+            #if file_path and os.path.exists(file_path):
+            #    os.remove(file_path)
 
-            logger.info(f"Report salvato con successo, ID: {report.id}")
+            #logger.info(f"Report salvato con successo, ID: {report.id}")
 
             # Se la richiesta vuole JSON, restituisci JSON
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -246,9 +263,41 @@ def report_success(request, report_id):
     context = {
         'report_id': report.id,
         'image_id': report.image_id,
+        'image_file': report.image_file,
     }
 
     return render(request, 'report/report_success.html', context)
+
+@login_required
+def confirm_report(request, report_id):
+    """Permette a un utente di confermare una segnalazione."""
+    report = get_object_or_404(Report, id=report_id)
+
+    if report.confirmations.filter(username=request.user).exists():
+    #if request.user in report.confirmations.filter.all():
+        return JsonResponse({"error": "Hai già confermato questa segnalazione."}, status=400)
+
+    report.confirm_report(request.user)
+    return JsonResponse({"message": "Segnalazione confermata!", "confirmations": report.confirmations.count(), "status": report.status})
+
+@login_required
+@csrf_exempt  # Rimuovilo se usi il CSRF token
+def delete_report_(request, report_id):
+    if request.method == "DELETE":
+        report = get_object_or_404(Report, id=report_id)
+        report.delete()
+        return JsonResponse({"success": True, "message": "Report eliminato"})
+    return JsonResponse({"error": "Metodo non consentito"}, status=405)
+
+@login_required
+def delete_report(request, report_id):
+    """Permette all'utente che ha creato la segnalazione o a un admin di eliminarla."""
+    report = get_object_or_404(Report, id=report_id)
+
+    if not report.delete_report(request.user):
+        return JsonResponse({"error": "Non hai i permessi per eliminare questa segnalazione."}, status=403)
+
+    return JsonResponse({"message": "Segnalazione eliminata con successo!"})
 
 class ReportListView(ListView):
     model = Report
@@ -286,4 +335,6 @@ class ReportListView(ListView):
          context["page_type"] = page_type if page_type in page_titles else "default" # Passa il tipo per gestire l'icona nel template
          context["MEDIA_URL"] = settings.MEDIA_URL  # Passa MEDIA_URL al template
          return context
+
+
 

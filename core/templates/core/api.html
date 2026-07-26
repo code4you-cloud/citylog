@@ -1,102 +1,358 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-primary">CityLog API</h1>
-    <p class="lead">Scopri come integrare gli endpoint di CityLog nei tuoi progetti.</p>
+<style>
+/* Stile generale - ispirato a Stripe docs (chiaro, pulito, sidebar) */
+.api-container { display:flex; gap:24px; margin:24px 0; }
+.api-sidebar {
+  width:260px;
+  min-height:70vh;
+  background:#f7fafc;
+  border:1px solid #e6edf3;
+  border-radius:8px;
+  padding:18px;
+  box-shadow:0 6px 18px rgba(20,30,40,0.04);
+  position:sticky;
+  top:24px;
+}
+.api-sidebar h4{ margin:4px 0 12px; font-weight:700; color:#0b57a4; }
+.api-nav { display:block; margin-top:8px; }
+.api-nav a { display:block; padding:8px 10px; color:#0b3f6b; text-decoration:none; border-radius:6px; margin-bottom:6px; font-size:0.95rem;}
+.api-nav a.active, .api-nav a:hover { background:#eaf5ff; color:#06345a; }
 
-    <div class="alert alert-info">
-        Le API di CityLog consentono di accedere ai dati sulle segnalazioni pubbliche e integrarli in altre applicazioni, analisi o dashboard.
+.api-main { flex:1; min-width:0; }
+.api-card {
+  background:white;
+  border:1px solid #e6edf3;
+  border-radius:8px;
+  padding:20px;
+  margin-bottom:18px;
+  box-shadow:0 6px 18px rgba(20,30,40,0.03);
+}
+.h-intro { color:#073b66; margin-bottom:6px; }
+.kv { font-weight:700; color:#0b57a4; }
+
+.code-tabs { display:flex; gap:8px; margin-bottom:12px; }
+.tab-btn { background:#f1f5f9; border:1px solid #e2e8f0; padding:6px 10px; border-radius:6px; cursor:pointer; font-family:monospace; color:#0b3f6b; }
+.tab-btn.active { background:#0b57a4; color:white; border-color:#084b84; }
+
+pre.code-block { background:#0f1724; color:#f8fafc; padding:16px; border-radius:6px; overflow:auto; position:relative; margin:0; font-size:0.9rem; line-height:1.5; }
+.copy-btn {
+  position:absolute; right:12px; top:12px;
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.06); color:#fff; padding:6px 8px; border-radius:6px; cursor:pointer; font-size:0.85rem;
+}
+.meta-line { font-size:0.9rem; color:#334155; margin-bottom:10px; }
+.small-muted { color:#475569; font-size:0.9rem; }
+
+.badge { display:inline-block; padding:4px 8px; border-radius:6px; background:#eef2ff; color:#0b3f6b; font-weight:700; font-size:0.8rem; margin-right:8px; }
+
+/* responsive */
+@media (max-width: 980px) {
+  .api-container { flex-direction:column; }
+  .api-sidebar { position:relative; width:100%; }
+}
+</style>
+
+<div class="container api-container">
+  <!-- Sidebar -->
+  <aside class="api-sidebar" aria-label="Navigation API">
+    <h4>📘 CityLog API</h4>
+    <p class="small-muted">Documentazione rapida per integrare segnalazioni e dataset geolocalizzati.</p>
+
+    <nav class="api-nav" id="apiNav">
+      <a href="#quickstart" class="active">Quickstart</a>
+      <a href="#auth">Autenticazione</a>
+      <a href="#endpoints">Endpoint Principali</a>
+      <a href="#examples">Esempi</a>
+      <a href="#tryit">Try it</a>
+      <a href="#responses">Strutture JSON</a>
+      <a href="#errors">Errori & Rate Limit</a>
+      <a href="#best">Best Practices</a>
+    </nav>
+
+    <div style="margin-top:12px;">
+      <div class="small-muted">Base URL</div>
+      <div style="font-family:monospace; margin-top:6px;">https://api.citylog.cloud/</div>
     </div>
+  </aside>
 
-    <!-- Sezione: Cos'è CityLog API -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h4>📌 Cos'è CityLog API?</h4>
-        </div>
-        <div class="card-body">
-            <p>CityLog offre un set di API REST per:</p>
-            <ul>
-                <li>Ottenere l'elenco delle segnalazioni.</li>
-                <li>Inviare nuove segnalazioni.</li>
-                <li>Recuperare informazioni geolocalizzate.</li>
-                <li>Effettuare analisi sui dati raccolti.</li>
-            </ul>
-        </div>
-    </div>
+  <!-- Main content -->
+  <main class="api-main">
+    <!-- Quickstart -->
+    <section id="quickstart" class="api-card">
+      <h2 class="h-intro">🔰 Quickstart</h2>
+      <p class="small-muted">
+        Per testare velocemente le API pubbliche (no-auth) puoi usare direttamente <code>/rifiuti/no-auth</code> o altri endpoint <strong>GET</strong>.
+      </p>
 
-    <!-- Sezione: Endpoint principali -->
-    <div class="card mb-4">
-        <div class="card-header bg-secondary text-white">
-            <h4>🔗 Endpoint principali</h4>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+        <div style="flex:1;min-width:220px;">
+          <div class="kv">1. Ottieni segnalazioni (NO AUTH)</div>
+          <div class="meta-line">GET <code>/rifiuti/no-auth?city=Brescia</code></div>
+          <pre class="code-block"><code>curl -X GET "https://api.citylog.cloud/rifiuti/no-auth?city=Brescia"</code></pre>
         </div>
-        <div class="card-body">
-            <p>Gli endpoint principali disponibili:</p>
-            <table class="table table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Metodo</th>
-                        <th>Endpoint</th>
-                        <th>Descrizione</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="badge badge-success">GET</span></td>
-                        <td><code>/api/reports/</code></td>
-                        <td>Restituisce l'elenco delle segnalazioni pubbliche.</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge badge-primary">POST</span></td>
-                        <td><code>/api/reports/</code></td>
-                        <td>Permette di inviare una nuova segnalazione.</td>
-                    </tr>
-                    <tr>
-                        <td><span class="badge badge-success">GET</span></td>
-                        <td><code>/api/reports/{id}/</code></td>
-                        <td>Restituisce i dettagli di una specifica segnalazione.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
 
-    <!-- Sezione: Esempi di utilizzo -->
-    <div class="card mb-4">
-        <div class="card-header bg-dark text-white">
-            <h4>📡 Esempi di utilizzo</h4>
+        <div style="flex:1;min-width:220px;">
+          <div class="kv">2. Invia una segnalazione (API key)</div>
+          <div class="meta-line">POST <code>/api/reports/</code></div>
+          <pre class="code-block"><code>curl -X POST "https://api.citylog.cloud/api/reports/" \
+  -H "Authorization: Token YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"latitude":45.46421,"longitude":9.19001,"type":"rifiuti","image_url":"https://..."}'</code></pre>
         </div>
-        <div class="card-body">
-            <p><strong>1. Ottenere l'elenco delle segnalazioni con `curl`:</strong></p>
-            <pre class="bg-light p-3"><code>curl -X GET https://citylog.cloud/api/reports/</code></pre>
+      </div>
+    </section>
 
-            <p><strong>2. Inviare una nuova segnalazione con `curl`:</strong></p>
-            <pre class="bg-light p-3"><code>
-curl -X POST https://citylog.cloud/api/reports/ \
-     -H "Content-Type: application/json" \
-     -d '{"latitude": "45.4642", "longitude": "9.1900", "image_url": "https://example.com/image.jpg"}'
-            </code></pre>
-        </div>
-    </div>
+    <!-- Auth -->
+    <section id="auth" class="api-card">
+      <h3 class="h-intro">🔐 Autenticazione</h3>
+      <p class="small-muted">
+        Alcuni endpoint (creazione, modifiche, cancellazioni) richiedono un token di autenticazione.
+        L'autenticazione attuale utilizza token in header: <code>Authorization: Token YOUR_API_KEY</code>.
+      </p>
 
-    <!-- Sezione: Autenticazione -->
-    <div class="card mb-4">
-        <div class="card-header bg-warning text-dark">
-            <h4>🔑 Autenticazione</h4>
-        </div>
-        <div class="card-body">
-            <p>Per alcune operazioni, è necessario autenticarsi tramite un <strong>API Key</strong>.</p>
-            <p><strong>Esempio di richiesta autenticata:</strong></p>
-            <pre class="bg-light p-3"><code>
-curl -X GET https://citylog.cloud/api/reports/ \
-     -H "Authorization: Token YOUR_API_KEY"
-            </code></pre>
-            <p>Puoi ottenere un'API Key registrandoti su CityLog.</p>
-        </div>
-    </div>
+      <div style="margin-top:12px;">
+        <div class="kv">Esempio header</div>
+        <pre class="code-block"><button class="copy-btn" data-copy-target="#authCurl">Copy</button><code id="authCurl">-H "Authorization: Token YOUR_API_KEY"</code></pre>
+        <p class="small-muted mt-2">Richiedi la chiave via pannello amministrativo dell'associazione o endpoint dedicato (se abilitato).</p>
+      </div>
+    </section>
 
-    <!-- Footer -->
-    <div class="mt-5"></div> <!-- Spazio inferiore uguale a quello superiore -->
+    <!-- Endpoints list -->
+    <section id="endpoints" class="api-card">
+      <h3 class="h-intro">🔗 Endpoint Principali</h3>
+
+      <table class="table" style="width:100%; border-collapse:collapse; font-size:0.95rem;">
+        <thead>
+          <tr style="text-align:left; color:#334155;">
+            <th style="padding:8px; border-bottom:1px solid #eef2f6;">Metodo</th>
+            <th style="padding:8px; border-bottom:1px solid #eef2f6;">Endpoint</th>
+            <th style="padding:8px; border-bottom:1px solid #eef2f6;">Descrizione</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px;"><span class="badge">GET</span></td>
+            <td style="padding:8px;"><code>/rifiuti/no-auth?city=NAME</code></td>
+            <td style="padding:8px;">Restituisce segnalazioni pubbliche di rifiuti per città.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;"><span class="badge">GET</span></td>
+            <td style="padding:8px;"><code>/piantumazioni/no-auth?city=NAME</code></td>
+            <td style="padding:8px;">Elenco piantumazioni segnalate.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;"><span class="badge">GET</span></td>
+            <td style="padding:8px;"><code>/tronchi/no-auth?city=NAME</code></td>
+            <td style="padding:8px;">Tronchi e ceppaie registrati.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;"><span class="badge">GET</span></td>
+            <td style="padding:8px;"><code>/censimento/no-auth?city=NAME</code></td>
+            <td style="padding:8px;">Censimento alberi e patrimonio verde.</td>
+          </tr>
+          <tr>
+            <td style="padding:8px;"><span class="badge">POST</span></td>
+            <td style="padding:8px;"><code>/api/reports/</code></td>
+            <td style="padding:8px;">Crea una nuova segnalazione (richiede token).</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="small-muted" style="margin-top:10px;">
+        Parametri comuni: <code>city</code> (string), <code>lat</code>, <code>lon</code>, <code>radius</code> (metri), <code>limit</code>, <code>offset</code>.
+      </div>
+    </section>
+
+    <!-- Examples with tabbed code -->
+    <section id="examples" class="api-card">
+      <h3 class="h-intro">📡 Esempi (curl | Python | JavaScript)</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:320px;">
+          <div class="code-tabs" role="tablist" aria-label="Code tabs">
+            <button class="tab-btn active" data-lang="curl" data-target="code-rifiuti">cURL</button>
+            <button class="tab-btn" data-lang="py" data-target="code-rifiuti">Python</button>
+            <button class="tab-btn" data-lang="js" data-target="code-rifiuti">JavaScript</button>
+          </div>
+
+          <div style="position:relative;">
+            <pre id="code-rifiuti" class="code-block"><button class="copy-btn" data-copy-target="#code-rifiuti">Copy</button><code data-lang-block="curl">curl -X GET "https://api.citylog.cloud/rifiuti/no-auth?city=Brescia&limit=50"
+</code><code data-lang-block="py" style="display:none">import requests
+r = requests.get("https://api.citylog.cloud/rifiuti/no-auth", params={"city":"Brescia","limit":50})
+print(r.json())</code><code data-lang-block="js" style="display:none">fetch("https://api.citylog.cloud/rifiuti/no-auth?city=Brescia&limit=50")
+  .then(r => r.json()).then(console.log)</code></pre>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:320px;">
+          <div class="code-tabs" role="tablist" aria-label="Code tabs 2">
+            <button class="tab-btn active" data-lang="curl" data-target="code-post">cURL</button>
+            <button class="tab-btn" data-lang="py" data-target="code-post">Python</button>
+            <button class="tab-btn" data-lang="js" data-target="code-post">JavaScript</button>
+          </div>
+
+          <div style="position:relative;">
+            <pre id="code-post" class="code-block"><button class="copy-btn" data-copy-target="#code-post">Copy</button><code data-lang-block="curl">curl -X POST "https://api.citylog.cloud/api/reports/" \
+  -H "Authorization: Token YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"latitude":45.521,"longitude":10.212,"address":"Via Trieste 10","type":"rifiuti","image_url":"https://..."}'</code><code data-lang-block="py" style="display:none">import requests, json
+headers = {"Authorization":"Token YOUR_API_KEY","Content-Type":"application/json"}
+payload = {"latitude":45.521,"longitude":10.212,"address":"Via Trieste 10","type":"rifiuti","image_url":"https://..."}
+r = requests.post("https://api.citylog.cloud/api/reports/", headers=headers, json=payload)
+print(r.status_code, r.json())</code><code data-lang-block="js" style="display:none">fetch("https://api.citylog.cloud/api/reports/", {
+  method:"POST",
+  headers:{"Authorization":"Token YOUR_API_KEY","Content-Type":"application/json"},
+  body: JSON.stringify({"latitude":45.521,"longitude":10.212,"address":"Via Trieste 10","type":"rifiuti","image_url":"https://..."})
+}).then(r=>r.json()).then(console.log)</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Try it -->
+    <section id="tryit" class="api-card">
+      <h3 class="h-intro">▶️ Try it (GET pubblico)</h3>
+      <p class="small-muted">Esegui rapidamente una richiesta GET pubblica (NO AUTH). Inserisci la città (es. Brescia) e premi <em>Invia</em>.</p>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input id="tryCity" class="form-control" placeholder="Inserisci city (es. Brescia)" style="max-width:320px;padding:8px;border-radius:6px;border:1px solid #e6edf3;">
+        <button onclick="doTry()" class="tab-btn" style="background:#0b57a4;color:#fff;">Invia</button>
+        <button onclick="clearTry()" class="tab-btn" style="background:#e2e8f0;color:#06345a;">Pulisci</button>
+      </div>
+
+      <div id="tryResult" style="margin-top:12px;">
+        <pre id="tryOutput" class="code-block" style="background:#081025; color:#e6f3ff; height:200px; overflow:auto;">Risultato...</pre>
+      </div>
+    </section>
+
+    <!-- Responses -->
+    <section id="responses" class="api-card">
+      <h3 class="h-intro">📦 Strutture di risposta (JSON)</h3>
+      <p class="small-muted">Esempio di oggetto segnalazione restituito da <code>/rifiuti/no-auth</code> e endpoint analoghi:</p>
+
+      <pre class="code-block"><code>{
+  "id": 1022,
+  "latitude": 45.521002,
+  "longitude": 10.212443,
+  "address": "Via Trieste, Brescia",
+  "type": "rifiuti",
+  "image_url": "https://citylog.cloud/img/abc123.jpg",
+  "timestamp": "2025-01-22T13:20:10Z",
+  "tags": ["ingombrante","tessili"],
+  "zone": "Centro"
+}</code></pre>
+
+      <div class="small-muted">Campi aggiuntivi: <code>verified</code> (bool), <code>accuracy</code> (metri), <code>source</code> (app/web).</div>
+    </section>
+
+    <!-- Errors -->
+    <section id="errors" class="api-card">
+      <h3 class="h-intro">❗ Errori & Rate limits</h3>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr><td style="padding:8px;font-weight:700;">400</td><td style="padding:8px;">Bad Request — parametri mancanti o invalidi.</td></tr>
+        <tr><td style="padding:8px;font-weight:700;">401</td><td style="padding:8px;">Unauthorized — token mancante o non valido.</td></tr>
+        <tr><td style="padding:8px;font-weight:700;">404</td><td style="padding:8px;">Not Found — risorsa inesistente.</td></tr>
+        <tr><td style="padding:8px;font-weight:700;">429</td><td style="padding:8px;">Too Many Requests — superati i limiti. Attendere e riprovare.</td></tr>
+        <tr><td style="padding:8px;font-weight:700;">500</td><td style="padding:8px;">Internal Server Error — problema lato server.</td></tr>
+      </table>
+
+      <div style="margin-top:10px;">
+        <div class="kv">Rate limits</div>
+        <div class="small-muted">Limite pubblicato (esempio): <strong>60 req/min per IP</strong> per endpoint no-auth; limiti più stringenti per endpoint autenticati.</div>
+      </div>
+    </section>
+
+    <!-- Best practices -->
+    <section id="best" class="api-card">
+      <h3 class="h-intro">📘 Best Practices</h3>
+      <ul>
+        <li>Usa sempre HTTPS per tutte le chiamate.</li>
+        <li>Evita polling intensivo: usa caching e query con <code>limit</code> e <code>offset</code>.</li>
+        <li>Per integrazioni, richiedi una API key e usa header di autorizzazione.</li>
+        <li>Filtra per bounding box o radius per ridurre payload.</li>
+        <li>Rispetta la privacy: non esporre dati personali; le immagini devono rispettare le policy del progetto.</li>
+      </ul>
+    </section>
+
+  </main>
 </div>
+
+<!-- Script interattivi: tab, copy, try-it -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  // sidebar nav active management (smooth scroll)
+  document.querySelectorAll('.api-nav a').forEach(a=>{
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      document.querySelectorAll('.api-nav a').forEach(x=>x.classList.remove('active'));
+      this.classList.add('active');
+      const id = this.getAttribute('href').slice(1);
+      document.getElementById(id).scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // code tabs
+  document.querySelectorAll('.code-tabs .tab-btn').forEach(btn=>{
+    btn.addEventListener('click', function(){
+      const target = this.getAttribute('data-target');
+      const lang = this.getAttribute('data-lang');
+      // deactivate sibling buttons within same code-tabs container
+      const parent = this.parentElement;
+      parent.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      this.classList.add('active');
+      // switch blocks
+      const codeBlock = document.getElementById(target);
+      if(!codeBlock) return;
+      codeBlock.querySelectorAll('[data-lang-block]').forEach(el=>{
+        if(el.getAttribute('data-lang-block')===lang) el.style.display='block'; else el.style.display='none';
+      });
+    });
+  });
+
+  // copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      const targetSelector = this.getAttribute('data-copy-target');
+      // if target is an id inside same pre
+      let pre = this.closest('pre');
+      if(!pre && targetSelector){
+        pre = document.querySelector(targetSelector);
+      }
+      if(!pre) return;
+      // collect visible text nodes in pre
+      const visible = Array.from(pre.querySelectorAll('[data-lang-block]')).find(n => n.style.display!=='none') || pre;
+      const text = visible.textContent || pre.textContent;
+      navigator.clipboard.writeText(text.trim()).then(()=> {
+        const old = this.textContent;
+        this.textContent='Copied';
+        setTimeout(()=> this.textContent = old, 1200);
+      }).catch(()=> alert('Copy failed'));
+    });
+  });
+});
+
+// Try-it function (GET public). Requires CORS enabled on api.citylog.cloud
+function doTry(){
+  const city = document.getElementById('tryCity').value.trim();
+  const out = document.getElementById('tryOutput');
+  out.textContent = 'Esecuzione...';
+  if(!city){ out.textContent = 'Inserisci una city valida.'; return; }
+  fetch(`https://api.citylog.cloud/rifiuti/no-auth?city=${encodeURIComponent(city)}&limit=20`)
+    .then(r=>{
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(json => {
+      out.textContent = JSON.stringify(json, null, 2);
+    })
+    .catch(err=>{
+      out.textContent = 'Errore: ' + err.message + '\\n(Verifica che l\'endpoint sia CORS-enabled)';
+    });
+}
+function clearTry(){
+  document.getElementById('tryCity').value='';
+  document.getElementById('tryOutput').textContent='Risultato...';
+}
+</script>
 {% endblock %}
 

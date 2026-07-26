@@ -154,12 +154,21 @@
                         <a class="nav-link" href="{% url 'core:regole-view' %}">Regole</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
+                        <a class="nav-link" href="{% url 'core:guida-foto' %}">Guida Foto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:trasparenza' %}">Trasparenza-Roadmap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:motivazioni' %}">Motivazioni</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'core:api-view' %}" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
                             API
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
+                        <a class="nav-link" href="{% url 'core:statistiche-view' %}" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
                             Statistiche
                         </a>
                     </li>
@@ -169,9 +178,9 @@
                                 <i class="fas fa-user-circle fa-lg"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDd">
-                                <a class="dropdown-item px-2" href="#more">Login</a>
+                                <a class="dropdown-item px-2" href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email">Login</a>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item px-2" href="#more">Logout</a>
+                                <!--a class="dropdown-item px-2" href="#more">Logout</a-->
                             </div>
                         {% else %}
                             <a class="nav-link" href="#" id="navbarDd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -183,6 +192,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDd">
                                 <a class="dropdown-item px-2" href="{% url 'dashboard' %}">Dashboard</a>
+                                <a class="dropdown-item px-2" href="{% url 'report:report_list' %}">Segnalazione Web</a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item px-2" href="{% url 'logout' %}">Logout</a>
                             </div>
@@ -226,12 +236,28 @@
                     </ul>
                 </div>
             </div>
+
+            <!-- Riga separata per associazione -->
+            <!--div class="row mt-4">
+                <div class="col-12 text-center text-light">
+                    <p style="margin: 0;">© 2025 CityLog.cloud | Iniziativa dell’Associazione “Civica per la Tutela Ambientale e la Memoria di [Nome Madre]”</p>
+                    <p style="margin: 0;">Piattaforma aperta a tutti i cittadini che condividono i valori di responsabilità e merito.</p>
+                    <p style="margin: 0;"><a class="text-white" href="#">Chi siamo</a> | <a class="text-white" href="#">Contatti</a></p>
+                </div>
+            </div-->
+
+            {% if system_info_template %}                                                                                                    	
+                <div class="system-footer">
+        	        {% include system_info_template %}
+                <div>
+            {% endif %}
             <!--/row-->
         </div>
     </footer> 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.13.0/umd/popper.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{% static "js/scripts.js" %}"></script>
     <script src="{% static "js/donazioni.js" %}"></script>
     <script>
@@ -251,6 +277,9 @@
             placement: 'bottom' // Posizione sotto il link
         });
     });
-    </script-->
+    </script popover-->
+
+    <!-- Qui verranno iniettati gli script delle pagine specifiche -->
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
