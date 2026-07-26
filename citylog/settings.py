@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+@^slyn0z^or(6&0uuwxbqb)sje*wvsctd63gbah0biy$+)&a5
 DEBUG = True
 
 # Switch from sqlite3 and postgresql
-SWITCH_DB = True
+SQL_DB = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -93,7 +93,7 @@ WSGI_APPLICATION = 'citylog.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-if not SWITCH_DB:
+if SQL_DB:
 
      DATABASES = {
          'default': {
