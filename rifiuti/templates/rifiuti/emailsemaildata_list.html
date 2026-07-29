@@ -34,7 +34,7 @@
                     <td><a href="{{ segnalazione.image_url }}">{{ segnalazione.address|default:"-" }}</td>
                     <td>{{ segnalazione.image_time|date:"d/m/Y H:i" }}</td>
                     <td>{{ segnalazione.image_id }}</td>
-                    <td><span class="badge badge-info">{{ segnalazione.typo }}</span></td>
+                    <td><span class="badge" style="background-color: #facc15; color: #000;">{{ segnalazione.typo }}</span></td>
                     <td>
                     <!-- Icona utente Facebook -->
                          {% if request.session.facebook_picture %}
