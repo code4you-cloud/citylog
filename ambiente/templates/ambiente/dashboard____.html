@@ -1,0 +1,837 @@
+<!-- ambiente/templates/ambiente/dashboard.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+  
+  <!-- HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary m-0">🌱 Ambiente</h2>
+      <p class="text-muted small m-0">Clicca sui grafici per ingrandirli</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <select id="quartiereSelect" class="form-select form-select-sm shadow-none" style="width: auto; min-width: 160px; border-radius: 6px; border: 1px solid #dee2e6; font-size: 0.875rem; padding: 0.25rem 0.5rem;">
+        <option value="all">📌 Tutti i quartieri</option>
+        {% for q in quartieri_list %}
+          <option value="{{ q }}">{{ q }}</option>
+        {% endfor %}
+      </select>
+      <span class="badge bg-primary-subtle text-primary border fs-6 px-3 py-2" id="totaleBadge">
+        {{ kpi.totale|default:"0" }} segnalazioni
+      </span>
+    </div>
+  </div>
+
+  <!-- KPI MINIMAL - 4 colonne -->
+  <div class="row g-2 mb-4">
+    <div class="col-3">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-2">
+          <div class="text-muted small">Totale</div>
+          <div class="fs-4 fw-bold" id="kpiTotale">{{ kpi.totale|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-2">
+          <div class="text-muted small">🌱 Piantumazione</div>
+          <div class="fs-4 fw-bold text-success" id="kpiPiantumazione">{{ statistiche_per_tipo.piantumazione|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-2">
+          <div class="text-muted small">📋 Censimento</div>
+          <div class="fs-4 fw-bold text-info" id="kpiCensimento">{{ statistiche_per_tipo.censimento|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center py-2">
+          <div class="text-muted small">🌳 Tronchi</div>
+          <div class="fs-4 fw-bold text-warning" id="kpiTronchi">{{ statistiche_per_tipo.tronchi|default:"0" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRIGLIA 2x2 -->
+  <div class="row g-3">
+    
+    <!-- SCHEDA 1: GRAFICO A TORTA -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-2 d-flex justify-content-between align-items-center">
+          <span class="fw-bold small" id="tortaTitle">📍 Segnalazioni per quartiere</span>
+          <span class="badge bg-light text-muted small">🖱️ Clicca</span>
+        </div>
+        <div class="card-body d-flex align-items-center justify-content-center" style="cursor: pointer; min-height: 260px;" id="tortaWrapper">
+          <div style="height: 180px; max-width: 260px; width: 100%;">
+            <canvas id="chartTorta"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDA 2: Andamento (LINEA) -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-2 d-flex justify-content-between align-items-center">
+          <span class="fw-bold small">📈 Andamento</span>
+          <span class="badge bg-light text-muted small">🖱️ Clicca</span>
+        </div>
+        <div class="card-body d-flex align-items-center" style="cursor: pointer; min-height: 260px;" id="puntiWrapper">
+          <div style="height: 180px; width: 100%;">
+            <canvas id="chartPunti"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDA 3: Top indirizzi -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-2">
+          <span class="fw-bold small">📍 Top indirizzi</span>
+        </div>
+        <div class="card-body py-1 d-flex flex-column justify-content-center" style="min-height: 260px;" id="topVieContainer">
+          {% for addr in top_indirizzi|slice:":6" %}
+          <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
+            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17" 
+               target="_blank" 
+               class="small text-truncate" 
+               style="max-width: 75%; color: #0d6efd; text-decoration: none;"
+               title="Clicca per vedere le segnalazioni su mappa">
+              {{ forloop.counter }}. {{ addr.address|truncatechars:35 }}
+            </a>
+            <span class="badge rounded-pill px-3 flex-shrink-0"
+                   style="background-color: #facc15; color: #000000; font-weight: 600;">
+              {{ addr.totale }}
+            </span>
+          </div>
+          {% empty %}
+          <div class="text-center text-muted small py-3">Nessun dato disponibile</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDA 4: Statistiche per tipologia (BARRE) -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-white border-0 py-2">
+          <span class="fw-bold small">📊 Statistiche per tipologia</span>
+        </div>
+        <div class="card-body d-flex align-items-center justify-content-center" style="min-height: 260px;">
+          <div style="width: 100%;" id="statoContainer">
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small">
+                <span>🌱 Piantumazione</span>
+                <span class="fw-bold" id="statoPiantumazione">{{ statistiche_per_tipo.piantumazione|default:"0" }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" id="barPiantumazione" style="width: {{ statistiche_per_tipo.piantumazione|default:0 }}%; background-color: #86efac !important;"></div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small">
+                <span>📋 Censimento</span>
+                <span class="fw-bold" id="statoCensimento">{{ statistiche_per_tipo.censimento|default:"0" }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" id="barCensimento" style="width: {{ statistiche_per_tipo.censimento|default:0 }}%; background-color: #16a34a !important;"></div>
+              </div>
+            </div>
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small">
+                <span>🌳 Tronchi</span>
+                <span class="fw-bold" id="statoTronchi">{{ statistiche_per_tipo.tronchi|default:"0" }}</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar" id="barTronchi" style="width: {{ statistiche_per_tipo.tronchi|default:0 }}%; background-color: #92400e !important;"></div>
+              </div>
+            </div>
+            <div class="mt-3 text-center text-muted small">
+              Totale: <strong id="statoTotale">{{ kpi.totale|default:"0" }}</strong> segnalazioni
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- OVERLAY PER GRAFICO INGRANDITO -->
+<div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+  <div style="background: white; border-radius: 12px; padding: 30px; max-width: 700px; width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+    <button id="closeOverlay" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 28px; cursor: pointer; color: #666;">✕</button>
+    <div style="height: 400px;">
+      <canvas id="overlayChart"></canvas>
+    </div>
+    <p class="text-center text-muted small mt-3">🖱️ Clicca sullo sfondo o su ✕ per chiudere</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof Chart === 'undefined') {
+    document.body.innerHTML = '<div class="alert alert-danger m-3">Chart.js non caricato</div>';
+    return;
+  }
+
+  // DATI INIZIALI DALLA VIEW
+  const trendData = {{ chart_attuali_data|safe }};
+  const quartieriData = {{ chart_quartieri_data|safe }};
+  
+  console.log('🚀 Inizializzazione dashboard Ambiente');
+  console.log('📊 quartieriData:', quartieriData);
+  console.log('📊 trendData:', trendData);
+  
+  // Colori
+  const colorsQuartieri = [
+    '#16a34a', '#facc15', '#3b82f6', '#ef4444', 
+    '#8b5cf6', '#ec4899', '#14b8a6', '#f97316',
+    '#6366f1', '#84cc16', '#06b6d4', '#d946ef',
+    '#10b981', '#f59e0b', '#6b7280'
+  ];
+  
+  const colorsTipologie = {
+    'piantumazione': '#86efac',
+    'censimento': '#16a34a',
+    'tronchi': '#92400e'
+  };
+
+  let tortaChart = null;
+  let puntiChart = null;
+  let tortaData = null;
+  let puntiData = null;
+  let currentQuartiere = 'all';
+
+  // ============================================================
+  // 1. GRAFICO TORTA - QUARTIERI
+  // ============================================================
+  function initTortaQuartieri(data) {
+    document.getElementById('tortaTitle').textContent = '📍 Segnalazioni per quartiere';
+    
+    if (!data || Object.keys(data).length === 0) {
+      const canvas = document.getElementById('chartTorta');
+      if (canvas) {
+        const parent = canvas.parentElement;
+        parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+      }
+      return;
+    }
+    
+    const sorted = Object.entries(data)
+      .filter(([key, value]) => key && key !== 'undefined' && key !== 'null' && value && value[0] > 0)
+      .sort((a, b) => b[1][0] - a[1][0])
+      .slice(0, 8);
+    
+    if (sorted.length === 0) {
+      const canvas = document.getElementById('chartTorta');
+      if (canvas) {
+        const parent = canvas.parentElement;
+        parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+      }
+      return;
+    }
+    
+    tortaData = {
+      labels: sorted.map(item => item[0]),
+      values: sorted.map(item => item[1][0] || 0)
+    };
+
+    const canvas = document.getElementById('chartTorta');
+    if (!canvas) return;
+    
+    if (tortaChart) {
+      tortaChart.destroy();
+      tortaChart = null;
+    }
+
+    tortaChart = new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: tortaData.labels,
+        datasets: [{
+          data: tortaData.values,
+          backgroundColor: colorsQuartieri.slice(0, tortaData.labels.length),
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 10,
+              padding: 6,
+              font: { size: 9 }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.parsed + ' segnalazioni';
+              }
+            }
+          }
+        },
+        cutout: '50%'
+      }
+    });
+    console.log('✅ Grafico torta quartieri creato con', tortaData.labels.length, 'quartieri');
+  }
+
+  // ============================================================
+  // 2. GRAFICO TORTA - TIPOLOGIE (per un singolo quartiere)
+  // ============================================================
+  function initTortaTipologie(data, quartiereNome) {
+    document.getElementById('tortaTitle').textContent = '📍 ' + quartiereNome + ' - Tipologie';
+    
+    const labels = [];
+    const values = [];
+    const colors = [];
+    
+    if (data.piantumazione > 0) {
+      labels.push('🌱 Piantumazione');
+      values.push(data.piantumazione);
+      colors.push(colorsTipologie.piantumazione);
+    }
+    if (data.censimento > 0) {
+      labels.push('📋 Censimento');
+      values.push(data.censimento);
+      colors.push(colorsTipologie.censimento);
+    }
+    if (data.tronchi > 0) {
+      labels.push('🌳 Tronchi');
+      values.push(data.tronchi);
+      colors.push(colorsTipologie.tronchi);
+    }
+    
+    if (labels.length === 0) {
+      const canvas = document.getElementById('chartTorta');
+      if (canvas) {
+        const parent = canvas.parentElement;
+        parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessuna segnalazione in questo quartiere</div>';
+      }
+      return;
+    }
+    
+    tortaData = {
+      labels: labels,
+      values: values
+    };
+
+    const canvas = document.getElementById('chartTorta');
+    if (!canvas) return;
+    
+    if (tortaChart) {
+      tortaChart.destroy();
+      tortaChart = null;
+    }
+
+    tortaChart = new Chart(canvas, {
+      type: 'pie',
+      data: {
+        labels: tortaData.labels,
+        datasets: [{
+          data: tortaData.values,
+          backgroundColor: colors,
+          borderWidth: 0
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'right',
+            labels: {
+              boxWidth: 10,
+              padding: 6,
+              font: { size: 9 }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return context.label + ': ' + context.parsed + ' segnalazioni';
+              }
+            }
+          }
+        },
+        cutout: '50%'
+      }
+    });
+    console.log('✅ Grafico torta tipologie creato per', quartiereNome);
+  }
+
+  // ============================================================
+  // 3. GRAFICO ANDAMENTO - CORRETTO
+  // ============================================================
+  function initAndamento(data) {
+    console.log('📈 initAndamento chiamato con:', data);
+    
+    const wrapper = document.getElementById('puntiWrapper');
+    let canvas = document.getElementById('chartPunti');
+    
+    // Se non ci sono dati, mostra messaggio
+    if (!data || !data.labels || data.labels.length === 0) {
+        if (wrapper) {
+            wrapper.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+        }
+        puntiData = null;
+        if (puntiChart) {
+            puntiChart.destroy();
+            puntiChart = null;
+        }
+        return;
+    }
+    
+    // Ricrea il canvas se è stato rimosso
+    if (!canvas) {
+        wrapper.innerHTML = '<div style="height: 180px; width: 100%;"><canvas id="chartPunti"></canvas></div>';
+        canvas = document.getElementById('chartPunti');
+        if (!canvas) {
+            console.warn('❌ Impossibile creare chartPunti');
+            return;
+        }
+    }
+    
+    // Se c'è un grafico esistente, distruggilo
+    if (puntiChart) {
+        puntiChart.destroy();
+        puntiChart = null;
+    }
+
+    // Prepara i dati
+    puntiData = data.labels.map((label, i) => ({
+        x: label,
+        y: data.series[i] || 0
+    }));
+
+    // Crea il nuovo grafico
+    puntiChart = new Chart(canvas, {
+        type: 'line',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Segnalazioni',
+                data: data.series,
+                borderColor: '#16a34a',
+                backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#16a34a',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: { font: { size: 10 } }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' segnalazioni';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                        font: { size: 9 },
+                        stepSize: 1
+                    },
+                    grid: { display: true, color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 9 },
+                        maxRotation: 30,
+                        autoSkip: true,
+                        maxTicksLimit: 15
+                    }
+                }
+            }
+        }
+    });
+    console.log('✅ Grafico andamento creato con', data.labels.length, 'punti');
+  }
+
+  // ============================================================
+  // 4. TRASFORMAZIONE DATI API
+  // ============================================================
+  function transformApiData(apiData) {
+    if (!apiData || !Array.isArray(apiData) || apiData.length === 0) {
+        return {
+            kpi: { totale: 0, piantumazione: 0, censimento: 0, tronchi: 0 },
+            trend: { labels: [], series: [] },
+            quartieri: {},
+            tipologiePerQuartiere: {},
+            top_indirizzi: []
+        };
+    }
+
+    const ambienteData = apiData.filter(item => 
+        ['censimento', 'piantumazione', 'tronchi'].includes(item.typo)
+    );
+
+    // KPI
+    const totale = ambienteData.length;
+    const piantumazione = ambienteData.filter(s => s.typo === 'piantumazione').length;
+    const censimento = ambienteData.filter(s => s.typo === 'censimento').length;
+    const tronchi = ambienteData.filter(s => s.typo === 'tronchi').length;
+
+    // TOP INDIRIZZI
+    const addressMap = {};
+    ambienteData.forEach(s => {
+        const addr = s.address || 'Sconosciuto';
+        if (!addressMap[addr]) {
+            addressMap[addr] = {
+                address: addr,
+                totale: 0,
+                latitude: s.latitude || '',
+                longitude: s.longitude || ''
+            };
+        }
+        addressMap[addr].totale++;
+        if (s.latitude) addressMap[addr].latitude = s.latitude;
+        if (s.longitude) addressMap[addr].longitude = s.longitude;
+    });
+
+    const top_indirizzi = Object.values(addressMap)
+        .sort((a, b) => b.totale - a.totale);
+
+    // QUARTIERI AGGREGATI
+    const quartieri = {};
+    ambienteData.forEach(s => {
+        const q = s.quartiere || 'Sconosciuto';
+        if (!quartieri[q]) {
+            quartieri[q] = [0, 0, 0, 0, 0];
+        }
+        quartieri[q][0] += 1;
+    });
+
+    // TIPOLOGIE PER QUARTIERE
+    const tipologiePerQuartiere = {};
+    ambienteData.forEach(s => {
+        const q = s.quartiere || 'Sconosciuto';
+        if (!tipologiePerQuartiere[q]) {
+            tipologiePerQuartiere[q] = {
+                piantumazione: 0,
+                censimento: 0,
+                tronchi: 0
+            };
+        }
+        if (s.typo === 'piantumazione') tipologiePerQuartiere[q].piantumazione++;
+        else if (s.typo === 'censimento') tipologiePerQuartiere[q].censimento++;
+        else if (s.typo === 'tronchi') tipologiePerQuartiere[q].tronchi++;
+    });
+
+    // TREND
+    const dateCount = {};
+    ambienteData.forEach(s => {
+        const date = s.image_time ? s.image_time.split('T')[0] : 'Sconosciuto';
+        dateCount[date] = (dateCount[date] || 0) + 1;
+    });
+    const sortedDates = Object.keys(dateCount).sort();
+    const trend = {
+        labels: sortedDates,
+        series: sortedDates.map(d => dateCount[d])
+    };
+
+    return {
+        kpi: { totale, piantumazione, censimento, tronchi },
+        trend,
+        quartieri,
+        tipologiePerQuartiere,
+        top_indirizzi
+    };
+  }
+
+  // ============================================================
+  // 5. AGGIORNAMENTO DASHBOARD
+  // ============================================================
+  function updateDashboard(quartiere) {
+    currentQuartiere = quartiere;
+    
+    const url = quartiere && quartiere !== 'all'
+        ? `https://api.citylog.cloud/quartieri/segnalazioni-quartiere?quartiere=${encodeURIComponent(quartiere)}`
+        : `https://api.citylog.cloud/quartieri/segnalazioni-quartiere`;
+
+    console.log('🔄 Aggiornamento dashboard per quartiere:', quartiere);
+
+    fetch(url, {
+        headers: { 'accept': 'application/json' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        const transformed = transformApiData(data);
+        
+        console.log('📊 Dati trasformati:', transformed);
+
+        // KPI
+        document.getElementById('kpiTotale').textContent = transformed.kpi.totale || 0;
+        document.getElementById('kpiPiantumazione').textContent = transformed.kpi.piantumazione || 0;
+        document.getElementById('kpiCensimento').textContent = transformed.kpi.censimento || 0;
+        document.getElementById('kpiTronchi').textContent = transformed.kpi.tronchi || 0;
+        
+        document.getElementById('statoPiantumazione').textContent = transformed.kpi.piantumazione || 0;
+        document.getElementById('statoCensimento').textContent = transformed.kpi.censimento || 0;
+        document.getElementById('statoTronchi').textContent = transformed.kpi.tronchi || 0;
+        document.getElementById('statoTotale').textContent = transformed.kpi.totale || 0;
+
+        const totale = transformed.kpi.totale || 1;
+        document.getElementById('barPiantumazione').style.width = ((transformed.kpi.piantumazione || 0) / totale * 100) + '%';
+        document.getElementById('barCensimento').style.width = ((transformed.kpi.censimento || 0) / totale * 100) + '%';
+        document.getElementById('barTronchi').style.width = ((transformed.kpi.tronchi || 0) / totale * 100) + '%';
+
+        document.getElementById('totaleBadge').textContent = (transformed.kpi.totale || 0) + ' segnalazioni';
+
+        // TORTA: se quartiere selezionato -> tipologie, altrimenti -> quartieri
+        if (quartiere && quartiere !== 'all') {
+            const tipologie = transformed.tipologiePerQuartiere[quartiere];
+            if (tipologie && (tipologie.piantumazione > 0 || tipologie.censimento > 0 || tipologie.tronchi > 0)) {
+                initTortaTipologie(tipologie, quartiere);
+            } else {
+                const canvas = document.getElementById('chartTorta');
+                if (canvas) {
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessuna segnalazione in questo quartiere</div>';
+                }
+            }
+        } else {
+            if (transformed.quartieri && Object.keys(transformed.quartieri).length > 0) {
+                initTortaQuartieri(transformed.quartieri);
+            } else {
+                const canvas = document.getElementById('chartTorta');
+                if (canvas) {
+                    const parent = canvas.parentElement;
+                    parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+                }
+            }
+        }
+
+        // ANDAMENTO - Versione corretta
+        if (transformed.trend && transformed.trend.labels && transformed.trend.labels.length > 0) {
+            // Ricrea il canvas se necessario
+            const wrapper = document.getElementById('puntiWrapper');
+            let canvas = document.getElementById('chartPunti');
+            if (!canvas && wrapper) {
+                wrapper.innerHTML = '<div style="height: 180px; width: 100%;"><canvas id="chartPunti"></canvas></div>';
+            }
+            initAndamento(transformed.trend);
+        } else {
+            const container = document.getElementById('puntiWrapper');
+            if (container) {
+                container.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato per questo quartiere</div>';
+            }
+            puntiData = null;
+            if (puntiChart) {
+                puntiChart.destroy();
+                puntiChart = null;
+            }
+        }
+
+        // TOP INDIRIZZI
+        if (transformed.top_indirizzi && transformed.top_indirizzi.length > 0) {
+            const container = document.getElementById('topVieContainer');
+            container.innerHTML = transformed.top_indirizzi.slice(0, 6).map((addr, i) => `
+                <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
+                    <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17"
+                        target="_blank"
+                        class="small text-truncate"
+                        style="max-width: 75%; color: #0d6efd; text-decoration: none;"
+                        title="Clicca per vedere le segnalazioni su mappa">
+                        ${i+1}. ${addr.address.length > 35 ? addr.address.substring(0, 35) + '...' : addr.address}
+                    </a>
+                    <span class="badge rounded-pill px-3 flex-shrink-0"
+                          style="background-color: #facc15; color: #000000; font-weight: 600;">
+                        ${addr.totale}
+                    </span>
+                </div>
+            `).join('') || '<div class="text-center text-muted small py-3">Nessun dato disponibile</div>';
+        }
+    })
+    .catch(err => console.error('❌ Errore aggiornamento:', err));
+  }
+
+  // ============================================================
+  // 6. EVENTO MENU QUARTIERI
+  // ============================================================
+  document.getElementById('quartiereSelect').addEventListener('change', function(e) {
+    updateDashboard(e.target.value);
+  });
+
+  // ============================================================
+  // 7. INIZIALIZZAZIONE
+  // ============================================================
+  console.log('🚀 Inizializzazione grafici...');
+
+  // Inizializza torta con i quartieri
+  if (quartieriData && typeof quartieriData === 'object' && Object.keys(quartieriData).length > 0) {
+    const firstKey = Object.keys(quartieriData)[0];
+    if (Array.isArray(quartieriData[firstKey])) {
+        initTortaQuartieri(quartieriData);
+    } else if (Array.isArray(quartieriData)) {
+        const result = {};
+        quartieriData.forEach(item => {
+            if (item.quartiere) {
+                result[item.quartiere] = [item.count || item.totale || 1, 0, 0, 0, 0];
+            }
+        });
+        initTortaQuartieri(result);
+    } else {
+        initTortaQuartieri(quartieriData);
+    }
+  } else {
+    const canvas = document.getElementById('chartTorta');
+    if (canvas) {
+        const parent = canvas.parentElement;
+        parent.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato disponibile</div>';
+    }
+  }
+
+  // Inizializza andamento
+  if (trendData && trendData.labels && trendData.labels.length > 0) {
+    initAndamento(trendData);
+  } else {
+    const container = document.getElementById('puntiWrapper');
+    if (container) {
+      container.innerHTML = '<div class="text-center text-muted py-4 small">Nessun dato di andamento disponibile</div>';
+    }
+  }
+
+  // ============================================================
+  // 8. OVERLAY
+  // ============================================================
+  const overlay = document.getElementById('overlay');
+  const closeBtn = document.getElementById('closeOverlay');
+  let overlayChart = null;
+
+  function openOverlay(chartType) {
+    overlay.style.display = 'flex';
+
+    setTimeout(() => {
+      const ctx = document.getElementById('overlayChart');
+      if (overlayChart) overlayChart.destroy();
+
+      if (chartType === 'torta' && tortaData) {
+        const colors = currentQuartiere !== 'all' 
+          ? ['#86efac', '#16a34a', '#92400e']
+          : colorsQuartieri.slice(0, tortaData.labels.length);
+          
+        overlayChart = new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: tortaData.labels,
+            datasets: [{
+              data: tortaData.values,
+              backgroundColor: colors,
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  boxWidth: 15,
+                  padding: 12,
+                  font: { size: 14 }
+                }
+              }
+            },
+            cutout: '40%'
+          }
+        });
+      } else if (chartType === 'punti' && puntiData) {
+        overlayChart = new Chart(ctx, {
+          type: 'scatter',
+          data: {
+            datasets: [{
+              label: 'Segnalazioni',
+              data: puntiData,
+              backgroundColor: '#16a34a',
+              borderColor: '#16a34a',
+              pointRadius: 8,
+              pointHoverRadius: 12
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: true, position: 'top' }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { precision: 0, font: { size: 12 } },
+                grid: { display: true, color: 'rgba(0,0,0,0.05)' }
+              },
+              x: {
+                grid: { display: true, color: 'rgba(0,0,0,0.05)' },
+                ticks: { font: { size: 12 } }
+              }
+            }
+          }
+        });
+      }
+    }, 100);
+  }
+
+  function closeOverlay() {
+    overlay.style.display = 'none';
+    if (overlayChart) {
+      overlayChart.destroy();
+      overlayChart = null;
+    }
+  }
+
+  document.getElementById('tortaWrapper').addEventListener('click', () => openOverlay('torta'));
+  document.getElementById('puntiWrapper').addEventListener('click', () => openOverlay('punti'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(); });
+  closeBtn.addEventListener('click', closeOverlay);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
+});
+</script>
+
+<style>
+  .card { border-radius: 8px; }
+  .card-header { background: transparent !important; }
+  .bg-light { background-color: #f8f9fa !important; }
+  .badge { font-weight: 400; }
+  .h-100 { height: 100% !important; }
+  .card-body { display: flex; flex-direction: column; justify-content: center; }
+  .border-bottom-light { border-bottom: 1px solid #f0f0f0 !important; }
+  #tortaWrapper:hover, #puntiWrapper:hover {
+    opacity: 0.85;
+    transition: opacity 0.2s;
+  }
+  .progress { background-color: #f0f0f0; border-radius: 10px; overflow: hidden; }
+</style>
+{% endblock %}
