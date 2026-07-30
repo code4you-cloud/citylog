@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap4',
     'facebook_auth',
 
-    'rifiuti',  # o 'rifiuti.apps.RifiutiConfig'
+    'rifiuti',   # o 'rifiuti.apps.RifiutiConfig'
+    'ambiente',  # o 'ambiente.apps.AmbienteConfig'
 ]
 
 MIDDLEWARE = [
