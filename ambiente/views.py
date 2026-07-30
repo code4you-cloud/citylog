@@ -128,36 +128,6 @@ class StatisticheDashboardView(TemplateView):
 
         return context
 
-class StatisticheDashboardView_(TemplateView):
-    template_name = 'ambiente/dashboard.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        service = StatisticheService()
-
-        # KPI rifiuti
-        context['kpi'] = service.get_kpi().to_dict()
-
-        # Grafici rifiuti
-        context['chart_attuali_data'] = json.dumps(service.get_trend())
-        context['chart_tipologia_data'] = json.dumps(service.get_tipologie())
-        context['chart_quartieri_data'] = json.dumps(service.get_quartieri())
-
-        # ✅ NUOVE METRICHE PER RIFIUTI
-        context['medie_temporali'] = service.get_medie_temporali()
-        context['top_indirizzi'] = service.get_top_indirizzi(10)
-
-        # Lista quartieri (solo quelli con rifiuti)
-        context['quartieri_list'] = list(
-            EmailsEmaildata.objects.using('segnalazioni_db')
-            .filter(typo='rifiuti')
-            .values_list('quartiere', flat=True)
-            .distinct()
-        )
-
-        return context
-
 class StatisticheAPIView(View):
     def get(self, request, *args, **kwargs):
         action = request.GET.get('action', 'dashboard')
