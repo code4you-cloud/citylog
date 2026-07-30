@@ -35,6 +35,7 @@ urlpatterns = [
     path('', include('core.urls', namespace='core')),
     path('report/', include('report.urls', namespace='report')),
     path('rifiuti/', include('rifiuti.urls', namespace='rifiuti')),
+    path('ambiente/', include('ambiente.urls', namespace='ambiente')),
     path('account/', include('django_users_accounts.urls')),
     path("facebook/callback/", facebook_callback, name="facebook-callback"),
     #path("logout/", LogoutView.as_view(), name="logout"),
