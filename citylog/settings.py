@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     'rifiuti',   # o 'rifiuti.apps.RifiutiConfig'
     'ambiente',  # o 'ambiente.apps.AmbienteConfig'
+    'strade',  # o 'ambiente.apps.AmbienteConfig'
 ]
 
 MIDDLEWARE = [
