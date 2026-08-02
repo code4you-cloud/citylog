@@ -11,13 +11,15 @@ from django.conf import settings
 
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib import messages
 
-from django.contrib.auth import login
+from django.contrib.auth import login, get_user_model
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 
 from report.models import Report
 from .models import EmailsEmaildata, Users, Trees
+from .services import QuartieriService
 
 from facebook_auth.client import FacebookAuthClient
 from facebook_auth.exceptions import FacebookAuthError
@@ -25,6 +27,8 @@ from facebook_auth.exceptions import FacebookAuthError
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDay
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 #from .models import EmailsEmaildata
 
@@ -523,16 +527,10 @@ def facebook_callback_(request):
     return redirect("dashboard")  # Reindirizza alla dashboard
 
 
-@login_required
-def dashboard(request):
-    user_reports = Report.objects.filter(user=request.user).order_by('-image_time')  # Filtra per utente autenticato
-    return render(request, 'core/dashboard.html', {'reports': user_reports, "MEDIA_URL": settings.MEDIA_URL})
-
-
-# views.py
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+#@login_required
+#def dashboard(request):
+#    user_reports = Report.objects.filter(user=request.user).order_by('-image_time')  # Filtra per utente autenticato
+#    return render(request, 'core/dashboard.html', {'reports': user_reports, "MEDIA_URL": settings.MEDIA_URL})
 
 @login_required
 def elimina_utente(request):
@@ -558,3 +556,148 @@ def elimina_dati_personali(request):
 
 def privacy_policy(request):
     return render(request, 'core/privacy_policy.html')
+
+class UserDashboardView(LoginRequiredMixin, TemplateView):
+    template_name = 'core/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # ✅ VERIFICA CONNESSIONE DATABASE
+        try:
+            total_count = EmailsEmaildata.objects.using('segnalazioni_db').count()
+            context['debug_total'] = total_count
+            print(f"✅ Connessione OK: {total_count} record", flush=True)
+        except Exception as e:
+            context['debug_total'] = f"ERRORE: {e}"
+            print(f"❌ Errore database: {e}", flush=True)
+            return context
+
+        # ✅ DATI GLOBALI (tutti gli utenti)
+        global_queryset = EmailsEmaildata.objects.using('segnalazioni_db').all()
+
+        context['statistiche_globale'] = {
+            'totale_segnalazioni': global_queryset.count(),
+            'numero_quartieri': global_queryset.values('quartiere').distinct().count(),
+            'tipologie': dict(
+                global_queryset.values('typo')
+                .annotate(count=Count('id'))
+                .values_list('typo', 'count')
+            ),
+        }
+
+        # ============================================================
+        # ✅ DATI PERSONALI (solo questo utente)
+        # ============================================================
+        # Cerca l'utente nel modello legacy tramite Facebook name
+        facebook_name = self.request.session.get('facebook_name')
+        if facebook_name:
+            legacy_user = Users.objects.filter(name=facebook_name).first()
+            print(f"🔍 Utente legacy trovato: {legacy_user}", flush=True)
+        else:
+            legacy_user = None
+
+        context['legacy_user'] = legacy_user
+
+        if legacy_user:
+            # ✅ Query per le segnalazioni (NON limitata)
+            user_reports = EmailsEmaildata.objects.using('segnalazioni_db') \
+                .filter(user_id=legacy_user.id) \
+                .order_by('-image_time')
+            print(f"🔍 Segnalazioni per user_id {legacy_user.id}: {user_reports.count()}", flush=True)
+        else:
+            # Fallback: tutte le segnalazioni
+            user_reports = EmailsEmaildata.objects.using('segnalazioni_db') \
+                .order_by('-image_time')
+            print(f"⚠️ Utente legacy NON trovato, mostro tutte le segnalazioni", flush=True)
+
+        # 🔍 DEBUG: Query SQL
+        context['debug_query'] = str(user_reports.query)
+        context['debug_count'] = user_reports.count()
+
+
+        # ✅ CALCOLA LE STATISTICHE SUL QUERYSET COMPLETO
+        context['statistiche_utente'] = {
+            'totale_segnalazioni': user_reports.count(),
+            'tipologie': dict(
+                user_reports.values('typo')
+                .annotate(count=Count('id'))
+                .values_list('typo', 'count')
+            ),
+        }
+
+        # ✅ POI PRENDI SOLO I PRIMI 10 PER LA VISUALIZZAZIONE
+        context['reports'] = list(user_reports[:10])
+
+        # ✅ QUARTIERI PERSONALI DELL'UTENTE (conteggio)
+        totale_quartieri_personali = user_reports.values('quartiere').distinct().count()
+        context['totale_quartieri_personali'] = totale_quartieri_personali
+
+        # ✅ QUARTIERI PERSONALI (lista dettagliata con conteggi per quartiere)
+        quartieri_personali = list(
+            user_reports.values('quartiere')
+            .annotate(totale=Count('id'))
+            .exclude(quartiere__isnull=True)
+            .exclude(quartiere='')
+            .order_by('-totale')
+        )
+        context['quartieri_personali'] = quartieri_personali
+
+        # ============================================================
+        # ✅ SEZIONE QUARTIERI GLOBALI (con coordinate)
+        # ============================================================
+        quartieri_list = list(
+            global_queryset
+            .values('quartiere')
+            .annotate(totale=Count('id'))
+            .exclude(quartiere__isnull=True)
+            .exclude(quartiere='')
+            .order_by('-totale')
+        )
+        context['debug_quartieri_raw'] = quartieri_list[:5]
+
+        # ✅ DETTAGLIO QUARTIERI GLOBALI CON COORDINATE
+        quartieri_dettaglio = {}
+        dati = (
+            global_queryset
+            .values('quartiere', 'typo')
+            .annotate(count=Count('id'))
+            .exclude(quartiere__isnull=True)
+            .exclude(quartiere='')
+        )
+
+        for item in dati:
+            quartiere = item['quartiere']
+            typo = item['typo']
+            count = item['count']
+
+            if quartiere not in quartieri_dettaglio:
+                # Prendi le coordinate dalla prima segnalazione del quartiere
+                prima_segnalazione = global_queryset.filter(quartiere=quartiere).first()
+                quartieri_dettaglio[quartiere] = {
+                    'nome': quartiere,
+                    'totale': 0,
+                    'tipologie': {},
+                    'latitude': prima_segnalazione.latitude if prima_segnalazione else '',
+                    'longitude': prima_segnalazione.longitude if prima_segnalazione else ''
+                }
+
+            quartieri_dettaglio[quartiere]['totale'] += count
+            quartieri_dettaglio[quartiere]['tipologie'][typo] = count
+
+        quartieri_dettaglio_ordinati = sorted(
+            quartieri_dettaglio.values(),
+            key=lambda x: x['totale'],
+            reverse=True
+        )
+
+        context['user_quartieri'] = quartieri_list
+        context['quartieri_dettaglio'] = quartieri_dettaglio_ordinati
+        context['totale_quartieri'] = len(quartieri_list)
+
+        # ✅ SESSIONE PER DEBUG
+        context['session_keys'] = list(self.request.session.keys())
+        context['session_data'] = dict(self.request.session)
+
+        return context
+

@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.auth.views import LogoutView
 
-from core.views import facebook_callback, dashboard, elimina_utente, elimina_dati_personali, privacy_policy
+from core.views import facebook_callback, elimina_utente, elimina_dati_personali, privacy_policy #dashboard
 
 
 # URL patterns dall'app "blog"
@@ -40,7 +40,7 @@ urlpatterns = [
     path('account/', include('django_users_accounts.urls')),
     path("facebook/callback/", facebook_callback, name="facebook-callback"),
     #path("logout/", LogoutView.as_view(), name="logout"),
-    path("dashboard/", dashboard, name="dashboard"),
+    #path("dashboard/", dashboard, name="dashboard"),
 ] + privacy_urls
 
 
