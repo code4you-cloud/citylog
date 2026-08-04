@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -52,6 +53,8 @@ INSTALLED_APPS = [
     'rifiuti',   # o 'rifiuti.apps.RifiutiConfig'
     'ambiente',  # o 'ambiente.apps.AmbienteConfig'
     'strade',  # o 'ambiente.apps.AmbienteConfig'
+
+    'google_auth',
 ]
 
 MIDDLEWARE = [
@@ -87,6 +90,7 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.facebook.FacebookOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'facebook_auth.backends.FacebookAuthBackend',  # Backend personalizzato per Facebook
+    'google_auth.backends.GoogleAuthBackend',      # Backend for Google
  )
 
 WSGI_APPLICATION = 'citylog.wsgi.application'
@@ -184,9 +188,16 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = False
 
 # django-facebook-auth
-FACEBOOK_APP_ID = "1233024841238630"
-FACEBOOK_APP_SECRET = "2e4014a04501a202e71b9a5679155de5"
-FACEBOOK_REDIRECT_URI = "https://citylog.cloud/facebook/callback/"
+FACEBOOK_APP_ID = ios.getenv('FACEBOOK_APP_ID')
+FACEBOOK_APP_SECRET = os.getenv('FACEBOOK_APP_SECRET')
+FACEBOOK_REDIRECT_URI = os.getenv('FACEBOOK_REDIRECT_URI')
+
+# ============================================
+# GOOGLE OAUTH CONFIGURATION
+# ============================================
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv('GOOGLE_OAUTH_CLIENT_SECRET')
+GOOGLE_OAUTH_REDIRECT_URI = os.getenv('GOOGLE_OAUTH_REDIRECT_URI')
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 #SECURE_SSL_REDIRECT = True
@@ -214,6 +225,9 @@ LOGIN_URL = 'login'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL ='login'
 LOGIN_REDIRECT_URL ='profile'
+
+#LOGIN_REDIRECT_URL ='/'
+#LOGIN_URL = 'google_auth:login'
 
 # django-custom-storage
 DEFAULT_FILE_STORAGE = "custom_storage.backends.CustomMediaStorage"
