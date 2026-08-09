@@ -163,3 +163,4 @@ media/
 
 # exclude my packages
 django-*/
+.env

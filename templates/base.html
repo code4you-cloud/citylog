@@ -199,31 +199,44 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        {% if not user.is_authenticated %}
+                        {% if request.session.authenticated or user.is_authenticated %}
+                            <a class="nav-link" href="#" id="navbarDd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {# 👈 Avatar #}
+                                {% if request.session.user_avatar|default:'' %}
+                                    <img src="{{ request.session.user_avatar }}" alt="Google Profile" class="rounded-circle" width="30" height="30">
+                                {% elif request.session.facebook_picture|default:'' %}
+                                    <img src="{{ request.session.facebook_picture }}" alt="Facebook Profile" class="rounded-circle" width="30" height="30">
+                                {% else %}
+                                    <i class="fas fa-user-circle fa-lg"></i>
+                                {% endif %}
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDd">
+                                <span class="dropdown-item disabled">
+                                    {% if request.session.user_name|default:'' %}
+                                        {{ request.session.user_name }}
+                                    {% elif request.session.facebook_name|default:'' %}
+                                        {{ request.session.facebook_name }}
+                                    {% else %}
+                                        {{ user.username }}
+                                    {% endif %}
+                                </span>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item px-2" href="{% url 'core:dashboard' %}">Dashboard</a>
+                                <a class="dropdown-item px-2" href="{% url 'report:report_list' %}">Segnalazione Web</a>
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item px-2" href="{% url 'logout' %}">Logout</a>
+                            </div>
+                        {% else %}
+                            <!-- Utente non autenticato -->
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-user-circle fa-lg"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDd">
                                 <a class="dropdown-item px-2" href="https://www.facebook.com/v17.0/dialog/oauth?client_id=1233024841238630&redirect_uri=https://citylog.cloud/facebook/callback/&scope=email">Facebook Login</a>
                                 <div class="dropdown-divider"></div>
-                                <!--a class="dropdown-item px-2" href="#more">Logout</a-->
-                            </div>
-                        {% else %}
-                            <a class="nav-link" href="#" id="navbarDd" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {% if request.session.facebook_picture %}
-                                    <img src="{{ request.session.facebook_picture }}" alt="Profile" class="rounded-circle" width="30" height="30">
-                                {% else %}
-                                    <i class="fas fa-user-circle fa-lg"></i>
-                                {% endif %}
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDd">
-                                <a class="dropdown-item px-2" href="{% url 'core:dashboard' %}">Dashboard</a>
-                                <a class="dropdown-item px-2" href="{% url 'report:report_list' %}">Segnalazione Web</a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item px-2" href="{% url 'logout' %}">Logout</a>
+                                <a class="dropdown-item px-2" href="{% url 'google_auth:login' %}">Google Login</a>
                             </div>
                         {% endif %}
-
                     </li>
                 </ul>
             </div>
@@ -255,9 +268,9 @@
                 <div class="col-12 col-md-12 col-lg-6 mb-2 text-right">
                     <h6 class="text-uppercase">Follow</h6>
                     <ul class="nav float-right">
-                        <li><a class="text-white mr-2" rel="nofollow" href="http://twitter.com/ThemesGuide" title="Follow on Twitter"><i class="h1 fa fa-fw fa-twitter fa-2x ion-logo-twitter"></i></a></li>
-                        <li><a class="text-white mr-2" rel="nofollow" href="https://www.facebook.com/codeply" title="Follow on Facebook"><i class="h1 fa fa-fw fa-facebook fa-2x ion-logo-facebook"></i></a></li>
-                        <li><a class="text-white mr" rel="nofollow" href="https://github.com/ThemesGuide/bootstrap-themes" title="Follow on GitHub"><i class="h1 fa fa-fw fa-facebook fa-2x ion-logo-github"></i></a></li>
+                        <li><a class="text-white mr-2" rel="nofollow" href="http://twitter.com/ThemesGuide" title="Follow on Twitter"><i class="fa-brands fa-twitter" style="font-size: 2.5rem; width: 1.25em; text-align: center;"></i></a></li>
+                        <li><a class="text-white mr-2" rel="nofollow" href="https://www.facebook.com/codeply" title="Follow on Facebook"><i class="fa-brands fa-facebook" style="font-size: 2.5rem; width: 1.25em; text-align: center;"></i></a></li>
+                        <li><a class="text-white mr" rel="nofollow" href="https://github.com/ThemesGuide/bootstrap-themes" title="Follow on GitHub"><i class="fa-brands fa-github" style="font-size: 2.5rem; width: 1.25em; text-align: center;"></i></a></li>
                     </ul>
                 </div>
             </div>
