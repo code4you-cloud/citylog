@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'strade',  # o 'ambiente.apps.AmbienteConfig'
 
     'google_auth',
+    'testers',
 ]
 
 MIDDLEWARE = [
