@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Completa l'installazione{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5 py-3">
+    <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <span class="display-4">🎉</span>
+                    <h3 class="text-success mt-2">Iscrizione Completata!</h3>
+                    <p class="text-muted">Segui questi ultimi 2 passaggi sul tuo dispositivo Android:</p>
+                </div>
+
+                <div class="list-group list-group-numbered mb-4">
+                    <div class="list-group-item d-flex justify-content-between align-items-start py-3">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Unisciti al Gruppo Google</div>
+                            <small class="text-muted">Passaggio obbligatorio per abilitare il tuo profilo su Google Play.</small>
+                            <div class="mt-2">
+                                <a href="{{ google_group_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                    1. Entra nel Gruppo Google ↗
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-group-item d-flex justify-content-between align-items-start py-3">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">Scarica l'App da Google Play</div>
+                            <small class="text-muted">Dopo essere entrato nel gruppo, accetta il test e scarica l'app.</small>
+                            <div class="mt-2">
+                                <a href="{{ play_store_test_url }}" target="_blank" class="btn btn-success btn-sm">
+                                    2. Accetta e Scarica su Google Play ↗
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning small mb-0" role="alert">
+                    <strong>Nota:</strong> Ricorda di non disinstallare l'app e di aprirla ogni tanto per tutti i 14 giorni. Il tuo aiuto è fondamentale per consentirci di superare la verifica di Google!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
