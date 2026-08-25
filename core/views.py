@@ -65,6 +65,7 @@ class RifiutiListView(ListView):
             "strade": ("Log.Strade", "Monitora le tue strade, i dissesti stradali pericolosi per la tua incolumità e viabilità."),
             "inquinamento": ("Log.Aria", "Visualizzate le % inquinanti."),
             "dashboard": ("Dashboard", "La tua Dashboard personale."),
+            "statistiche": ("Statistiche", "Statistiche."),
             "default": ("CityLog", "Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
                         città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale."),
         }
@@ -701,3 +702,15 @@ class UserDashboardView(LoginRequiredMixin, TemplateView):
 
         return context
 
+class MachineLearningView(TemplateView):
+    template_name = 'core/machine_learning.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'total_rifiuti': 1247,
+            'total_strade': 823,
+            'total_verde': 456,
+            'total_illuminazione': 312,
+        })
+        return context

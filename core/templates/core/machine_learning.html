@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Machine Learning per l'Ambiente{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ml-hero {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        padding: 80px 0;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 60px;
+    }
+    
+    .ml-card {
+        border: none;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        height: 100%;
+        background: var(--bs-card-bg);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .ml-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .ml-card .card-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+    
+    .ml-stat-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        text-align: center;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
+    }
+    
+    .ml-stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+    
+    .ml-stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        display: block;
+    }
+    
+    .ml-stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .ml-timeline {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .ml-timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, #0d6efd, #0dcaf0);
+    }
+    
+    .ml-timeline-item {
+        position: relative;
+        margin-bottom: 30px;
+        padding-left: 20px;
+    }
+    
+    .ml-timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -26px;
+        top: 5px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #0d6efd;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
+    }
+    
+    .ml-timeline-item:nth-child(2)::before {
+        background: #0dcaf0;
+        box-shadow: 0 0 0 3px rgba(13, 202, 240, 0.3);
+    }
+    
+    .ml-timeline-item:nth-child(3)::before {
+        background: #ffc107;
+        box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.3);
+    }
+    
+    .ml-timeline-item:nth-child(4)::before {
+        background: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3);
+    }
+    
+    .ml-feature-box {
+        background: linear-gradient(135deg, rgba(13, 110, 253, 0.05), rgba(13, 202, 240, 0.05));
+        border-radius: 20px;
+        padding: 30px;
+        height: 100%;
+        border: 1px solid rgba(13, 110, 253, 0.1);
+    }
+    
+    .ml-tech-badge {
+        background: white;
+        border-radius: 50px;
+        padding: 8px 20px;
+        margin: 5px;
+        display: inline-block;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #1a1a2e;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+    
+    .ml-results-grid .stat-item {
+        text-align: center;
+        padding: 20px;
+        border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .ml-results-grid .stat-item:last-child {
+        border-right: none;
+    }
+    
+    @media (max-width: 768px) {
+        .ml-hero {
+            padding: 40px 0;
+            border-radius: 0 0 30px 30px;
+        }
+        
+        .ml-stat-number {
+            font-size: 2rem;
+        }
+        
+        .ml-results-grid .stat-item {
+            border-right: none;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+        }
+        
+        .ml-results-grid .stat-item:last-child {
+            border-bottom: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="ml-hero text-white">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <span class="badge bg-primary bg-opacity-25 text-white px-4 py-2 mb-4 rounded-pill">
+                    🧠 Intelligenza Artificiale
+                </span>
+                <h1 class="display-3 fw-bold mb-4">
+                    Machine Learning per l'Ambiente
+                </h1>
+                <p class="lead opacity-75 mb-4">
+                    Come l'AI sta trasformando la gestione delle segnalazioni ambientali, 
+                    rendendo la città più pulita e reattiva
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#come-funziona" class="btn btn-light btn-lg rounded-pill px-5">
+                        Scopri come
+                    </a>
+                    <a href="{#{% url 'report:freesegnalazione' %}#}" class="btn btn-outline-light btn-lg rounded-pill px-5">
+                        Invia segnalazione
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <!-- STATISTICHE RAPIDE -->
+    <div class="row g-4 mb-5">
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card">
+                <span class="ml-stat-number">{{ total_rifiuti|default:"0" }}</span>
+                <span class="ml-stat-label">🗑️ Rifiuti</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card">
+                <span class="ml-stat-number">{{ total_strade|default:"0" }}</span>
+                <span class="ml-stat-label">🛣️ Strade</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card">
+                <span class="ml-stat-number">{{ total_verde|default:"0" }}</span>
+                <span class="ml-stat-label">🌿 Verde</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="ml-stat-card">
+                <span class="ml-stat-number">{{ total_illuminazione|default:"0" }}</span>
+                <span class="ml-stat-label">💡 Illuminazione</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- COME FUNZIONA -->
+    <section id="come-funziona" class="mb-5">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Come Funziona</h2>
+            <p class="text-muted">Il nostro sistema di machine learning analizza le segnalazioni in 4 fasi</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="ml-card card p-4">
+                    <div class="card-icon bg-primary bg-opacity-10 text-primary">
+                        📝
+                    </div>
+                    <h5 class="card-title fw-bold">1. Raccolta</h5>
+                    <p class="card-text text-muted small">
+                        Le segnalazioni arrivano da cittadini attraverso web e app mobile con testo e immagini
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="ml-card card p-4">
+                    <div class="card-icon bg-info bg-opacity-10 text-info">
+                        🤖
+                    </div>
+                    <h5 class="card-title fw-bold">2. Analisi AI</h5>
+                    <p class="card-text text-muted small">
+                        NLP analizza il testo, visione artificiale classifica le immagini in tempo reale
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="ml-card card p-4">
+                    <div class="card-icon bg-warning bg-opacity-10 text-warning">
+                        🎯
+                    </div>
+                    <h5 class="card-title fw-bold">3. Priorità</h5>
+                    <p class="card-text text-muted small">
+                        Assegnazione automatica della priorità basata su urgenza e impatto sociale
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="ml-card card p-4">
+                    <div class="card-icon bg-success bg-opacity-10 text-success">
+                        ✅
+                    </div>
+                    <h5 class="card-title fw-bold">4. Risoluzione</h5>
+                    <p class="card-text text-muted small">
+                        Invio agli uffici competenti con monitoraggio dei tempi di risoluzione
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECNOLOGIE E IMPATTO -->
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="ml-feature-box">
+                <h4 class="fw-bold mb-4">🛠️ Tecnologie Utilizzate</h4>
+                <div>
+                    <span class="ml-tech-badge">🧠 TensorFlow</span>
+                    <span class="ml-tech-badge">📝 NLTK</span>
+                    <span class="ml-tech-badge">🖼️ OpenCV</span>
+                    <span class="ml-tech-badge">📊 Scikit-learn</span>
+                    <span class="ml-tech-badge">🚀 Django</span>
+                    <span class="ml-tech-badge">🐍 Python</span>
+                </div>
+                <hr class="my-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success bg-opacity-10 text-success p-3 rounded-3">
+                        <span class="h4 mb-0">94%</span>
+                    </div>
+                    <div>
+                        <p class="mb-0 fw-bold">Precisione del modello</p>
+                        <small class="text-muted">Classificazione automatica delle segnalazioni</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ml-feature-box">
+                <h4 class="fw-bold mb-4">📈 Impatto sul Territorio</h4>
+                <div class="d-flex flex-column gap-3">
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">Tempi di risoluzione</span>
+                            <span class="text-success">-65%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 65%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">Lavoro manuale</span>
+                            <span class="text-primary">-70%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="fw-bold">Soddisfazione cittadini</span>
+                            <span class="text-warning">+45%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMELINE E PROCESSO -->
+    <section class="mb-5">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-6 fw-bold mb-4">Il Processo di Classificazione</h2>
+                <div class="ml-timeline">
+                    <div class="ml-timeline-item">
+                        <h6 class="fw-bold">Riconoscimento immagine</h6>
+                        <p class="text-muted small mb-0">
+                            Il modello analizza l'immagine per identificare il tipo di problema
+                        </p>
+                    </div>
+                    <div class="ml-timeline-item">
+                        <h6 class="fw-bold">Analisi del testo</h6>
+                        <p class="text-muted small mb-0">
+                            NLP estrae parole chiave e contesto dalla descrizione
+                        </p>
+                    </div>
+                    <div class="ml-timeline-item">
+                        <h6 class="fw-bold">Classificazione</h6>
+                        <p class="text-muted small mb-0">
+                            Combinazione dei dati per categorizzare la segnalazione
+                        </p>
+                    </div>
+                    <div class="ml-timeline-item">
+                        <h6 class="fw-bold">Prioritizzazione</h6>
+                        <p class="text-muted small mb-0">
+                            Assegnazione del livello di urgenza e invio automatico
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-light rounded-4 p-4 text-center">
+                    <div class="display-1 mb-3">🤖</div>
+                    <h5 class="fw-bold">Modello in tempo reale</h5>
+                    <p class="text-muted small">
+                        Ogni segnalazione viene elaborata in meno di 2 secondi
+                    </p>
+                    <div class="d-flex justify-content-center gap-4 mt-3">
+                        <div>
+                            <span class="h4 text-success d-block">99.9%</span>
+                            <small class="text-muted">Uptime</small>
+                        </div>
+                        <div>
+                            <span class="h4 text-primary d-block">10K+</span>
+                            <small class="text-muted">Segnalazioni</small>
+                        </div>
+                        <div>
+                            <span class="h4 text-warning d-block">4.8</span>
+                            <small class="text-muted">Valutazione</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATISTICHE AVANZATE -->
+    <div class="bg-primary bg-gradient text-white rounded-4 p-4 p-md-5 mb-5">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <span class="display-6 fw-bold d-block">94%</span>
+                    <small class="opacity-75">Precisione</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <span class="display-6 fw-bold d-block">3x</span>
+                    <small class="opacity-75">Più veloci</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <span class="display-6 fw-bold d-block">70%</span>
+                    <small class="opacity-75">Meno lavoro</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <span class="display-6 fw-bold d-block">10K+</span>
+                    <small class="opacity-75">Segnalazioni</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA FINALE -->
+    <div class="text-center py-5">
+        <h3 class="fw-bold mb-3">🌱 Contribuisci anche tu</h3>
+        <p class="text-muted mb-4">
+            Ogni segnalazione migliora il modello e rende la città più pulita
+        </p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{#{% url 'report:freesegnalazione' %}#}" class="btn btn-primary btn-lg rounded-pill px-5">
+                📝 Invia segnalazione
+            </a>
+            <a href="{#{% url 'core:statistiche' %}#}" class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+                📊 Vedi statistiche
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

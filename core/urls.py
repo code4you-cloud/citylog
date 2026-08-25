@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import HomePage, RifiutiListView, RifiutiDetailView, DonazioniView, \
-    ManifestoView, RegoleView, GuidaFotoView, TrasparenzaView, MotivazioniView, ApiView, StatisticheView, UserDashboardView #dashboard
+    ManifestoView, RegoleView, GuidaFotoView, TrasparenzaView, MotivazioniView, ApiView, StatisticheView, UserDashboardView, MachineLearningView #dashboard
 
 app_name='core'
 
@@ -16,7 +16,8 @@ urlpatterns =[
     path("trasparenza/", TrasparenzaView.as_view(), name="trasparenza"),
     path("motivazioni/", MotivazioniView.as_view(), name="motivazioni"),
     path("api-docs/", ApiView.as_view(), name="api-view"),
-    path("statistiche/", StatisticheView.as_view(), name="statistiche-view"),
+    #path("statistiche/", StatisticheView.as_view(), name="statistiche-view"),
     path("dashboard/", UserDashboardView.as_view(), name="dashboard"),
+    path('machine-learning/', MachineLearningView.as_view(), name='machine_learning'),
     #path("dashboard/", dashboard, name="dashboard"),
 ]
