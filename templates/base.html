@@ -21,18 +21,23 @@
             <div class="row align-items-center vh-50 py-5">
                 <div class="col-xl-5 col-lg-6 ml-auto py-2 text-light order-2 text-center text-lg-left">
                     <h1 class="mb-0">
-                        <span>  {% if page_title %} {{ page_title }} 
+                        <span>  {% if page_title %} {{ page_title }}
+                                {% elif '/donation/' in request.path %}
+                                Sostieni CityLog - Dona ora
+                                {% elif '/testers/' in request.path %}
+                                Partecipa alla fase finale di testing della nostra app-android
                                 {% else %}
-                                CityLog
-                                {% endif %}</span>
-                    </h1>
-                    <p class="lead mb-3"><span> {% if page_description %} {{ page_description }} 
-                                                {% else %}
+                                Citylog
+                                {% endif %}
+                        </span>
+                        </h1>
+                            <p class="lead mb-3"><span> {% if page_description %} {{ page_description }} 
+                                                        {% else %}
                                                 Citylog è una piattaforma civica che coinvolge i cittadini nel monitoraggio ambientale della propria \
                          città. Tramite citylog app, è possibile segnalare violazioni sui rifiuti, ambiente, buche/dissesti, inquinamento ambientale.
-                                                {% endif %}
-
-                    </p>
+                                                        {% endif %}
+                            </span>
+                            </p>
 
                 </div>
                 <div class="col-xl-4 col-lg-6 col mr-auto order-1 order-lg-last align-items-center justify-content-center justify-content-lg-end d-flex">
@@ -163,28 +168,13 @@
                             <a class="dropdown-item" href="{% url 'core:api-view' %}" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
                                 ⚡ API
                             </a>
-                            <a class="dropdown-item" href="{% url 'core:statistiche-view' %}" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
-                                📊 Statistiche
+                            <a class="dropdown-item" href="{% url 'core:machine_learning' %}" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
+                                📊 Machine Learning
                             </a>
                         </div>
                     </li>
-                    <!--li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:manifesto-view' %}">Manifesto</a>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:regole-view' %}">Regole</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:guida-foto' %}">Guida Foto</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:trasparenza' %}">Trasparenza-Roadmap</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:motivazioni' %}">Motivazioni</a>
-                    </li-->
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:donazioni-view' %}" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
+                        <a class="nav-link" href="{% url 'stripe_payments:donation_page' %}" data-toggle="popover" data-placement="bottom" data-content="Questa opzione è in corso..." title="Attenzione">
                             Supporto
                         </a>
                     </li>
@@ -194,8 +184,8 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'core:statistiche-view' %}" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
-                            Statistiche
+                        <a class="nav-link" href="{% url 'core:machine_learning' %}" data-toggle="popover" data-content="Le statistiche sono in fase di sviluppo..." title="Info">
+                            Machine Learning
                         </a>
                     </li>
                     <li class="nav-item dropdown">

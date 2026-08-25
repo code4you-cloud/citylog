@@ -3,25 +3,66 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card">
-        <div class="card-header bg-secondary text-white">
-            Segnalazione inviata con successo!
+        <div class="card-header bg-success text-white">
+            <h4>✅ Segnalazione inviata con successo!</h4>
         </div>
         <div class="card-body">
             <h5 class="card-title">Grazie per la tua segnalazione!</h5>
             <p class="card-text">
                 La tua segnalazione è stata registrata con il seguente codice di tracciamento:
                 <strong>{{ image_id }}</strong>.
-                <strong>{{ image_file }}</strong>.
             </p>
-            <p class="card-text">
-                Puoi utilizzare questo codice per fare riferimento alla tua segnalazione in futuro.
-            </p>
-            <a href="{% url 'core:home' %}" class="btn btn-primary">Torna alla home</a>
+            
             <hr class="my-4">
-            <a class="btn btn-primary btn-lg" href="{% url 'reports:create_report' %}" role="button">Invia un'altra segnalazione</a>
+            
+            <h6 class="mb-3"><strong>📋 Dettagli della segnalazione:</strong></h6>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li><strong>📅 Data:</strong> {{ report.image_time|date:"d/m/Y H:i" }}</li>
+                        <li><strong>🏙️ Città:</strong> {{ report.city }}</li>
+                        <li><strong>📍 Indirizzo:</strong> {{ report.address }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li><strong>📌 Stato:</strong> 
+                            <span class="badge {% if report.status == 'pending' %}badge-warning{% elif report.status == 'approved' %}badge-success{% elif report.status == 'rejected' %}badge-danger{% else %}badge-secondary{% endif %}">
+                                {{ report.get_status_display }}
+                            </span>
+                        </li>
+                        <li><strong>🌐 Latitudine:</strong> {{ report.latitude|default:"N/D" }}</li>
+                        <li><strong>🌐 Longitudine:</strong> {{ report.longitude|default:"N/D" }}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if report.image_file %}
+            <div class="mt-3">
+                <strong>🖼️ Immagine:</strong>
+                <a href="{{ report.image_file.url }}" target="_blank">Visualizza immagine</a>
+            </div>
+            {% endif %}
+            
+            {% if report.description %}
+            <div class="mt-3">
+                <strong>💬 Descrizione:</strong>
+                <p class="mt-1">{{ report.description }}</p>
+            </div>
+            {% endif %}
+            
+            <hr class="my-4">
+            <p class="card-text text-muted small">
+                Puoi utilizzare questo codice per fare riferimento alla tua segnalazione in futuro.
+                <br>ID Segnalazione: <strong>{{ report.id }}</strong>
+            </p>
+            
+            <div class="mt-4">
+                <a href="{% url 'core:home' %}" class="btn btn-primary">🏠 Torna alla home</a>
+                <a href="{% url 'reports:create_report' %}" class="btn btn-success">➕ Invia un'altra segnalazione</a>
+            </div>
         </div>
     </div>
 </div>
-<!-- Aggiunto lo stesso margine inferiore del top -->
 <div class="mt-5"></div>
 {% endblock %}
