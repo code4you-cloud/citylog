@@ -9,6 +9,8 @@ from datetime import datetime
 from django.db import models
 from django.contrib.auth.models import User
 
+from core.models import Users
+
 def get_image_path(instance, filename):
     # Genera un percorso univoco per ogni immagine caricata
     ext = filename.split('.')[-1]
@@ -27,10 +29,14 @@ class Report(models.Model):
         ('tronchi', 'Tronchi'),
         ('censimento', 'Censimento'),
         ('piantumazione', 'Piantumazione'),
+        ('strade', 'Strade'),
     )
 
     id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  # Nuovo campo
+    user = models.ForeignKey(Users,
+                             on_delete=models.CASCADE,
+                             null=True,
+                             blank=True)  # Nuovo campo
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     city = models.CharField(max_length=100)
@@ -51,7 +57,7 @@ class Report(models.Model):
         null=True,       # Opzionale: permette di salvare NULL nel database
         help_text="Inserisci una breve descrizione dell'upload (max 200 caratteri)."  # Testo di aiuto
     )
-    confirmations = models.ManyToManyField(User, related_name="confirmed_reports", blank=True)
+    confirmations = models.ManyToManyField(Users, related_name="confirmed_reports", blank=True)
 
     def confirm_report(self, user):
         """Aggiunge una conferma e verifica la segnalazione se necessario."""

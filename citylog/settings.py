@@ -56,6 +56,7 @@ INSTALLED_APPS = [
 
     'google_auth',
     'testers',
+    'stripe_payments',
 ]
 
 MIDDLEWARE = [
@@ -180,13 +181,28 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # to send email
-EMAIL_HOST = 'smtp.code4you.cloud'
-EMAIL_HOST_USER = 'info@citylog.cloud'
-EMAIL_HOST_PASSWORD = 'Blacking1'
-FROM_EMAIL = 'noreply@citylof.cloud'
-SERVER_EMAIL = 'noreply@citylog.cloud'
+#### -- Sviluppato backend di posta customizzato: -- ####
+#per evitare problema ; ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED]
+#certificate verify failed: unable to get local issuer certificate (_ssl.c:992)-- ######
+# bisogna disattivare proxy
+EMAIL_BACKEND = 'core.email_backend.CustomEmailBackend'
+#########################################################
+
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'vps-e993bee2.vps.ovh.net'
+#EMAIL_HOST = 'smtp.code4you.cloud'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = False
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = 'noreply@citylog.cloud'
+#EMAIL_HOST_USER = 'info@citylog.cloud'
+#EMAIL_HOST_PASSWORD = 'Blacking1'
+#FROM_EMAIL = 'noreply@citylof.cloud'
+#SERVER_EMAIL = 'noreply@citylog.cloud'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = False
 
 # django-facebook-auth
 FACEBOOK_APP_ID = os.getenv('FACEBOOK_APP_ID')
@@ -255,3 +271,8 @@ LOGGING = {
         },
     },
 }
+
+#django-stripe-payments
+STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')

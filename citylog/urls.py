@@ -40,7 +40,9 @@ urlpatterns = [
     path('account/', include('django_users_accounts.urls')),
     path("facebook/callback/", facebook_callback, name="facebook-callback"),
     path('auth/', include('google_auth.urls')),  # 👈 Questo!
+
     path('testers/', include('testers.urls',namespace='testers')),
+    path("supporto/", include("stripe_payments.urls", namespace="stripe_payments")),
     #path("logout/", LogoutView.as_view(), name="logout"),
     #path("dashboard/", dashboard, name="dashboard"),
 ] + privacy_urls
