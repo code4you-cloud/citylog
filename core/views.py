@@ -2,15 +2,16 @@ import logging
 import requests
 import traceback
 import json
+import os
 
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, View
 
 from django.shortcuts import get_object_or_404
 from django.conf import settings
 
 from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
 from django.contrib import messages
 
 from django.contrib.auth import login, get_user_model
@@ -29,6 +30,7 @@ from django.db.models import Count, Q
 from django.db.models.functions import TruncDay
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 
 #from .models import EmailsEmaildata
 
@@ -714,3 +716,25 @@ class MachineLearningView(TemplateView):
             'total_illuminazione': 312,
         })
         return context
+
+#@login_required
+#def mappa_segnalazioni(request):
+#    path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'sample_leaflet_mono65_debug4.html')
+#    with open(path, encoding='utf-8') as f:
+#        return HttpResponse(f.read(), content_type='text/html')
+#
+class MappaSegnalazioniView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        cache_key = 'mappa_segnalazioni_html'
+        html_content = cache.get(cache_key)
+
+        if html_content is None:
+            path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html')
+            with open(path, encoding='utf-8') as f:
+                html_content = f.read()
+                cache.set(cache_key, html_content, 3600)  # Cache per 1 ora
+
+        return HttpResponse(html_content, content_type='text/html')
+
+
+
