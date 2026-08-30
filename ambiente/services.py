@@ -1,5 +1,5 @@
 # ambiente/services.py
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Max
 from .models import EmailsEmaildata
 
 class StatisticheService:
@@ -86,6 +86,23 @@ class StatisticheService:
         return list(medie)
 
     def get_top_indirizzi(self, limit=10, typo_list=None):
+        """
+        Restituisce i top indirizzi filtrati per typo_list
+        """
+        queryset = EmailsEmaildata.objects.using('segnalazioni_db')
+
+        if typo_list:
+            queryset = queryset.filter(typo__in=typo_list)
+
+        top = queryset.values('address', 'city').annotate(
+            count=Count('id'),
+            latitude=Max('latitude'),
+            longitude=Max('longitude'),
+        ).order_by('-count')[:limit]
+
+        return list(top)
+
+    def get_top_indirizzi_(self, limit=10, typo_list=None):
         """
         Restituisce i top indirizzi filtrati per typo_list
         """

@@ -616,7 +616,7 @@
 <!-- NAVBAR -->
 <div id="navbar">
     <div class="nav-row">
-        <input type="text" id="searchInput" placeholder="Cerca indirizzo..."
+        <input type="text" id="searchInput" placeholder="Cerca indirizzo..." 
                onkeypress="if(event.key==='Enter') searchAddress()">
         <select id="quartiereFilter" onchange="filterByQuartiere()">
             <option value="">Tutti i quartieri</option>
@@ -640,7 +640,7 @@
     <div class="menu-section-title">Stile mappa</div>
     <div class="style-btns">
         <button class="style-btn" id="btn-std" onclick="setStyle('std')">Standard</button>
-        <button class="style-btn" id="btn-voyager" onclick="setStyle('voyager')">Voyager</button>
+        <button class="style-btn" id="btn-dark" onclick="setStyle('voyager')">Voyager</button>
         <button class="style-btn active" id="btn-light" onclick="setStyle('light')">Chiaro</button>
     </div>
     <div class="menu-section-title">Livelli</div>
@@ -788,16 +788,10 @@ const COLORS = {
     buche: '#f87171'
 };
 
-// Mappa "nome app Django" -> "nome layer JS interno"
-// rifiuti -> rifiuti, ambiente -> ambiente, strade -> buche
-const APP_TO_LAYER = {
-    rifiuti: 'rifiuti',
-    ambiente: 'ambiente',
-    strade: 'buche'
-};
-
 const TILE_LAYERS = {
     std:   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    //dark:  'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', old! get a new carto token with protonmail
+    //light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
     voyager: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=cb1_2k77_1_39ca12e6a81d2260aafb399f',
     light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key=cb1_2k77_1_39ca12e6a81d2260aafb399f',
 };
@@ -812,7 +806,7 @@ function debugLog(message, type = 'info') {
     entry.textContent = `[${timestamp}] ${message}`;
     container.appendChild(entry);
     container.scrollTop = container.scrollHeight;
-
+    
     while (container.children.length > 100) {
         container.removeChild(container.firstChild);
     }
@@ -833,9 +827,7 @@ function getUrlParams() {
     const lat = parseFloat(params.get('mlat') || params.get('lat'));
     const lng = parseFloat(params.get('mlon') || params.get('lng') || params.get('lon'));
     const zoom = parseInt(params.get('zoom') || 14);
-    // ✅ Tipo di app chiamante: 'rifiuti' | 'ambiente' | 'strade'
-    const app = params.get('app') || null;
-    return { lat, lng, zoom, app };
+    return { lat, lng, zoom };
 }
 
 const urlParams = getUrlParams();
@@ -870,7 +862,7 @@ if (urlParams.lat && urlParams.lng) {
         iconSize: [20, 20],
         iconAnchor: [10, 10]
     });
-
+    
     L.marker([urlParams.lat, urlParams.lng], { icon: highlightIcon })
         .addTo(map)
         .bindPopup('📍 Posizione selezionata')
@@ -1312,7 +1304,7 @@ async function getCity() {
 function logDuplicateSummary() {
     const dupeCounts = {};
     const dupeDetails = {};
-
+    
     STATE.markers.forEach(m => {
         if (m.image_id) {
             if (!dupeCounts[m.image_id]) {
@@ -1328,7 +1320,7 @@ function logDuplicateSummary() {
             });
         }
     });
-
+    
     const dupes = Object.entries(dupeCounts).filter(([id, count]) => count > 1);
     if (dupes.length > 0) {
         debugLog(`📊 RIEPILOGO DUPLICATI: ${dupes.length} image_id duplicati`, 'warn');
@@ -1336,6 +1328,7 @@ function logDuplicateSummary() {
             const details = dupeDetails[id];
             const types = details.map(d => d.type).join(', ');
             debugLog(`   📌 ${id}: ${count} occorrenze (tipi: ${types})`, 'warn');
+            // Mostra i dettagli delle occorrenze
             details.forEach((d, idx) => {
                 debugLog(`      #${idx+1}: tipo=${d.type}, lat=${d.lat.toFixed(6)}, lon=${d.lon.toFixed(6)}`, 'info');
             });
@@ -1401,10 +1394,12 @@ async function loadLayer(layerName, city) {
                 const lon = parseFloat(lonStr);
                 if (isNaN(lat) || isNaN(lon)) return;
 
+                // ✨ LEGGI L'ID DELLA SEGNALAZIONE
                 const segnalazioneId = item.id || item.segnalazione_id || item.pk || 'N/A';
                 const imageId = item.image_id;
                 const type = cfg.types[i];
-
+                
+                // ✨ CREA IDENTIFICATORE UNIVOCO
                 let uniqueId;
                 if (imageId) {
                     uniqueId = `img_${imageId}`;
@@ -1414,6 +1409,7 @@ async function loadLayer(layerName, city) {
                     uniqueId = `coord_${roundedLat}_${roundedLon}_${type}`;
                 }
 
+                // ✨ CONTROLLA DUPLICATI CON DETTAGLIO ID SEGNALAZIONE
                 if (STATE.addedMarkers.has(uniqueId)) {
                     duplicates++;
                     STATE.duplicatesDetected++;
@@ -1439,7 +1435,7 @@ async function loadLayer(layerName, city) {
 
                 addMarker(lat, lon, addr, time, imgUrl, type, cfg.cluster, imageId, latStr, lonStr, knownQuartiere);
                 total++;
-
+                
                 if (total % 50 === 0) {
                     debugLog(`✅ ${cfg.label}: ${total} marker aggiunti`);
                 }
@@ -1450,32 +1446,24 @@ async function loadLayer(layerName, city) {
     }
 
     STATE.loaded[layerName] = true;
-    const msg = total > 0 ?
-        `${cfg.label}: ${total} marker aggiunti (${duplicates} duplicati ignorati)` :
+    const msg = total > 0 ? 
+        `${cfg.label}: ${total} marker aggiunti (${duplicates} duplicati ignorati)` : 
         `${cfg.label}: nessun dato`;
     showStatus(msg);
     debugLog(`✅ Completato ${cfg.label}: ${total} marker, ${duplicates} duplicati ignorati`);
     updateCounters();
     renderQuartieriList();
     renderQuartiereFilter();
+    
+    // ✨ AGGIUNGI RIEPILOGO DUPLICATI
     logDuplicateSummary();
 }
 
 // ── TOGGLE LAYER ──
-// force: se true forza lo stato a "attivo" invece di invertirlo (usato per l'attivazione da ?app=)
-async function toggleLayer(name, force = null) {
+async function toggleLayer(name) {
     const chk = document.getElementById('chk' + name.charAt(0).toUpperCase() + name.slice(1));
     if (!chk) return;
-
-    if (force === true) {
-        if (chk.checked) return; // già attivo, non fare nulla
-        chk.checked = true;
-    } else if (force === false) {
-        if (!chk.checked) return; // già spento, non fare nulla
-        chk.checked = false;
-    } else {
-        chk.checked = !chk.checked;
-    }
+    chk.checked = !chk.checked;
 
     if (chk.checked) {
         if (!STATE.loaded[name]) {
@@ -1576,10 +1564,10 @@ async function showAll() {
 
 // ── GEOLOCALIZZAZIONE ──
 function locateUser() {
-    if (!navigator.geolocation) {
+    if (!navigator.geolocation) { 
         showStatus('Geolocalizzazione non supportata');
         debugLog('📍 Geolocalizzazione non supportata', 'error');
-        return;
+        return; 
     }
     map.locate({ setView: true, maxZoom: 16, timeout: 10000, enableHighAccuracy: true });
     map.once('locationfound', e => {
@@ -1660,8 +1648,8 @@ async function syncQuartieriToServer() {
 
         daInviare.forEach(item => {
             const markerObj = STATE.markers.find(
-                m => m.lat === parseFloat(item.latitudine) &&
-                     m.lon === parseFloat(item.longitudine) &&
+                m => m.lat === parseFloat(item.latitudine) && 
+                     m.lon === parseFloat(item.longitudine) && 
                      m.type === item.typo
             );
             if (markerObj) markerObj.synced = true;
@@ -1677,33 +1665,24 @@ async function syncQuartieriToServer() {
 (async () => {
     debugLog('🚀 Avvio CityLog Mappa');
     debugLog(`📱 Dispositivo: ${window.innerWidth <= 768 ? 'Mobile' : 'Desktop'}`);
-    if (urlParams.app) {
-        debugLog(`🏷️ App chiamante: ${urlParams.app}`);
-    }
-
+    
+    const isMobile = window.innerWidth <= 768;
     setStyle('light');
+    //setStyle(isMobile ? 'light' : 'std');
 
     const city = await getCity();
     debugLog(`📍 Città rilevata: ${city}`);
 
-    // ✅ Determina quale layer caricare di default all'avvio:
-    // - se ?app= specifica un layer valido, carica SOLO quello
-    // - altrimenti (nessun ?app=, o app='rifiuti'), comportamento storico: rifiuti
-    const requestedLayer = (urlParams.app && APP_TO_LAYER[urlParams.app])
-        ? APP_TO_LAYER[urlParams.app]
-        : 'rifiuti';
-
-    const checkboxIdMap = { rifiuti: 'chkRifiuti', ambiente: 'chkAmbiente', buche: 'chkBuche' };
-
-    await loadLayer(requestedLayer, city);
-    document.getElementById(checkboxIdMap[requestedLayer]).checked = true;
-    map.addLayer(clusters[requestedLayer]);
-    debugLog(`🎯 Layer di avvio: ${requestedLayer}${urlParams.app ? ` (da ?app=${urlParams.app})` : ' (default)'}`);
-
+    // Carica il layer Rifiuti all'avvio
+    await loadLayer('rifiuti', city);
+    document.getElementById('chkRifiuti').checked = true;
+    map.addLayer(clusters.rifiuti);
+    
     updateCounters();
     showStatus('');
     debugLog(`✅ Avvio completato: ${STATE.markers.length} marker caricati`);
-
+    
+    // Mostra riepilogo duplicati all'avvio
     if (STATE.duplicatesDetected > 0) {
         debugLog(`⚠️ Attenzione: ${STATE.duplicatesDetected} duplicati rilevati e ignorati durante il caricamento`, 'warn');
     }

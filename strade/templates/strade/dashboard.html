@@ -102,7 +102,7 @@
         <div class="card-body py-1 d-flex flex-column justify-content-center" style="min-height: 260px;" id="topVieContainer">
           {% for addr in top_indirizzi|slice:":6" %}
           <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
-            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17&typo={{ addr.tipologia_dominante }}" 
+            <a href="{% url 'core:mappa_strade' %}?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17&typo={{ addr.tipologia_dominante }}" 
                target="_blank" 
                class="small text-truncate" 
                style="max-width: 75%; color: #0d6efd; text-decoration: none;"
@@ -737,7 +737,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     typoParam = 'dissesto';
                 }
                 
-                const mapUrl = `https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17&typo=${typoParam}`;
+                const mapUrl = `{% url 'core:mappa_strade' %}?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17&typo=${typoParam}`;
                 
                 return `
                     <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">

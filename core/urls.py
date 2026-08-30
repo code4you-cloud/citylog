@@ -20,7 +20,14 @@ urlpatterns =[
     #path("statistiche/", StatisticheView.as_view(), name="statistiche-view"),
     path("dashboard/", views.UserDashboardView.as_view(), name="dashboard"),
     path('machine-learning/', views.MachineLearningView.as_view(), name='machine_learning'),
-    #dovrebbe sostituire approccio /var/www/html
+
+    #sostituisce workflow /var/www/html
     path('mappa/segnalazioni/', views.MappaSegnalazioniView.as_view(), name='mappa_segnalazioni'),
+
+    # URL specifici per app
+    path('mappa/rifiuti/', views.MappaSegnalazioniView.as_view(), {'app_type': 'rifiuti'}, name='mappa_rifiuti'),
+    path('mappa/ambiente/', views.MappaSegnalazioniView.as_view(), {'app_type': 'ambiente'}, name='mappa_ambiente'),
+    path('mappa/strade/', views.MappaSegnalazioniView.as_view(), {'app_type': 'strade'}, name='mappa_strade'),
+
     #path("dashboard/", dashboard, name="dashboard"),
 ]

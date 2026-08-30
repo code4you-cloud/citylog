@@ -3,6 +3,7 @@ import requests
 import traceback
 import json
 import os
+import re
 
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, ListView, DetailView, View
@@ -31,6 +32,8 @@ from django.db.models.functions import TruncDay
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
+
+from urllib.parse import urlencode
 
 #from .models import EmailsEmaildata
 
@@ -724,6 +727,76 @@ class MachineLearningView(TemplateView):
 #        return HttpResponse(f.read(), content_type='text/html')
 #
 class MappaSegnalazioniView(LoginRequiredMixin, View):
+    """
+    Serve la mappa Leaflet/CARTO condivisa da rifiuti, ambiente e strade.
+
+    Gli URL (mappa/rifiuti/, mappa/ambiente/, mappa/strade/) passano
+    'app_type' come kwarg del path -- corretto cosi' com'e'.
+
+    Il JS della pagina pero' legge il tipo di app SOLO dalla query string
+    (?app=...), non dai kwargs del path. Questa view quindi traduce il
+    kwarg in query string con un redirect, preservando ESPLICITAMENTE
+    tutti gli altri parametri gia' presenti nella richiesta originale
+    (mlat, mlon, zoom, ecc.) -- e' proprio la loro perdita ad aver causato
+    il bug della geolocalizzazione ignorata.
+    """
+
+    TEMPLATE_PATH = os.path.join(
+        settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html'
+    )
+
+    def get(self, request, *args, **kwargs):
+        app_type = kwargs.get('app_type')
+
+        if app_type and request.GET.get('app') != app_type:
+            # Copia TUTTI i parametri gia' presenti nella query string
+            # (mlat, mlon, zoom, ecc.) e imposta/aggiorna solo 'app'.
+            params = request.GET.copy()
+            params['app'] = app_type
+            return redirect(f'{request.path}?{urlencode(params)}')
+
+        with open(self.TEMPLATE_PATH, encoding='utf-8') as f:
+            html_content = f.read()
+
+        return HttpResponse(html_content, content_type='text/html')
+
+class MappaSegnalazioniView___(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        app_type = kwargs.get('app_type')
+        if app_type and request.GET.get('app') != app_type:
+            return redirect(f'{request.path}?app={app_type}')
+
+        path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html')
+        with open(path, encoding='utf-8') as f:
+            html_content = f.read()
+
+        return HttpResponse(html_content, content_type='text/html')
+
+class MappaSegnalazioniView__(LoginRequiredMixin, View):
+    """
+    Serve la mappa Leaflet/CARTO condivisa da rifiuti, ambiente e strade.
+
+    La differenziazione per app chiamante NON avviene più lato server
+    (niente regex sull'HTML, niente cache per variante): il file HTML
+    è sempre lo stesso, servito identico a tutti.
+
+    Ogni app passa semplicemente ?app=rifiuti|ambiente|strade nell'URL
+    (vedi template: {% url 'core:mappa_segnalazioni' %}?app=ambiente).
+    È il JS della pagina (funzione getUrlParams + IIFE finale) a leggere
+    il parametro e attivare il layer corrispondente al volo.
+    """
+
+    TEMPLATE_PATH = os.path.join(
+        settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html'
+    )
+
+    def get(self, request, *args, **kwargs):
+        with open(self.path, encoding='utf-8') as f:
+            html_content = f.read()
+
+        return HttpResponse(html_content, content_type='text/html')
+
+class MappaSegnalazioniView_(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         cache_key = 'mappa_segnalazioni_html'
         html_content = cache.get(cache_key)
