@@ -98,7 +98,7 @@
           {% for addr in top_indirizzi|slice:":6" %}
           <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
             <!-- ✅ LINK ALLA MAPPA -->
-            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17" 
+            <a href="{% url 'core:mappa_segnalazioni' %}?mlat={{ addr.latitude|default:'' }}&mlon={{ addr.longitude|default:'' }}&zoom=17" 
                target="_blank" 
                class="small text-truncate" 
                style="max-width: 75%; color: #0d6efd; text-decoration: none;"
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const container = document.getElementById('topVieContainer');
         container.innerHTML = transformed.top_indirizzi.slice(0, 6).map((addr, i) => `
           <div class="d-flex justify-content-between align-items-center py-1 border-bottom border-light top-vie-item">
-            <a href="https://maps.citylog.cloud/sample_leaflet_mono65_debug3.html?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17"
+            <a href="{% url 'core:mappa_segnalazioni' %}?mlat=${addr.latitude || ''}&mlon=${addr.longitude || ''}&zoom=17"
                 target="_blank"
                 class="small text-truncate"
                 style="max-width: 75%; color: #0d6efd; text-decoration: none;"
