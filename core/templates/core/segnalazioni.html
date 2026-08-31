@@ -842,7 +842,9 @@ function getUrlParams() {
     const zoom = parseInt(params.get('zoom') || 14);
     // ✅ Tipo di app chiamante: 'rifiuti' | 'ambiente' | 'strade'
     const app = params.get('app') || null;
-    return { lat, lng, zoom, app };
+    // ✅ Quartiere da preselezionare nel filtro (es. da dashboard "I tuoi quartieri")
+    const quartiere = params.get('quartiere') || null;
+    return { lat, lng, zoom, app, quartiere };
 }
 
 const urlParams = getUrlParams();
@@ -1707,6 +1709,13 @@ async function syncQuartieriToServer() {
     map.addLayer(clusters[requestedLayer]);
     debugLog(`🎯 Layer di avvio: ${requestedLayer}${urlParams.app ? ` (da ?app=${urlParams.app})` : ' (default)'}`);
 
+    // ✅ Se l'URL specifica un quartiere (es. da dashboard "I tuoi quartieri"),
+    // carica TUTTI i layer (un quartiere può avere rifiuti + ambiente + strade)
+    // e seleziona automaticamente quel quartiere nel filtro esistente.
+    if (urlParams.quartiere) {
+        await applyQuartiereFromUrl(urlParams.quartiere);
+    }
+
     updateCounters();
     showStatus('');
     debugLog(`✅ Avvio completato: ${STATE.markers.length} marker caricati`);
@@ -1715,6 +1724,37 @@ async function syncQuartieriToServer() {
         debugLog(`⚠️ Attenzione: ${STATE.duplicatesDetected} duplicati rilevati e ignorati durante il caricamento`, 'warn');
     }
 })();
+
+// ── APPLICA QUARTIERE DA URL ──
+// Carica tutti i layer e seleziona il quartiere richiesto nel filtro,
+// riusando la stessa select/filterByQuartiere() già presenti nel menu.
+async function applyQuartiereFromUrl(target) {
+    debugLog(`📍 Quartiere richiesto da URL: ${target}`);
+    await showAll(); // carica rifiuti + ambiente + strade, necessario per coprire tutti i tipi del quartiere
+
+    const select = document.getElementById('quartiereFilter');
+    if (!select) return;
+
+    // Le opzioni del filtro si popolano anche in modo asincrono (geocoding),
+    // quindi si prova per qualche secondo prima di arrendersi.
+    let attempts = 0;
+    const maxAttempts = 20; // ~6 secondi totali (20 x 300ms)
+
+    function tryApply() {
+        attempts++;
+        const match = Array.from(select.options).find(o => o.value === target);
+        if (match) {
+            select.value = target;
+            filterByQuartiere();
+            debugLog(`✅ Quartiere "${target}" selezionato e filtro applicato`);
+        } else if (attempts < maxAttempts) {
+            setTimeout(tryApply, 300);
+        } else {
+            debugLog(`⚠️ Quartiere "${target}" non trovato tra le opzioni disponibili`, 'warn');
+        }
+    }
+    tryApply();
+}
 
 </script>
 </body>

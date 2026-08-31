@@ -720,12 +720,6 @@ class MachineLearningView(TemplateView):
         })
         return context
 
-#@login_required
-#def mappa_segnalazioni(request):
-#    path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'sample_leaflet_mono65_debug4.html')
-#    with open(path, encoding='utf-8') as f:
-#        return HttpResponse(f.read(), content_type='text/html')
-#
 class MappaSegnalazioniView(LoginRequiredMixin, View):
     """
     Serve la mappa Leaflet/CARTO condivisa da rifiuti, ambiente e strade.
@@ -757,55 +751,6 @@ class MappaSegnalazioniView(LoginRequiredMixin, View):
 
         with open(self.TEMPLATE_PATH, encoding='utf-8') as f:
             html_content = f.read()
-
-        return HttpResponse(html_content, content_type='text/html')
-
-class MappaSegnalazioniView___(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        app_type = kwargs.get('app_type')
-        if app_type and request.GET.get('app') != app_type:
-            return redirect(f'{request.path}?app={app_type}')
-
-        path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html')
-        with open(path, encoding='utf-8') as f:
-            html_content = f.read()
-
-        return HttpResponse(html_content, content_type='text/html')
-
-class MappaSegnalazioniView__(LoginRequiredMixin, View):
-    """
-    Serve la mappa Leaflet/CARTO condivisa da rifiuti, ambiente e strade.
-
-    La differenziazione per app chiamante NON avviene più lato server
-    (niente regex sull'HTML, niente cache per variante): il file HTML
-    è sempre lo stesso, servito identico a tutti.
-
-    Ogni app passa semplicemente ?app=rifiuti|ambiente|strade nell'URL
-    (vedi template: {% url 'core:mappa_segnalazioni' %}?app=ambiente).
-    È il JS della pagina (funzione getUrlParams + IIFE finale) a leggere
-    il parametro e attivare il layer corrispondente al volo.
-    """
-
-    TEMPLATE_PATH = os.path.join(
-        settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html'
-    )
-
-    def get(self, request, *args, **kwargs):
-        with open(self.path, encoding='utf-8') as f:
-            html_content = f.read()
-
-        return HttpResponse(html_content, content_type='text/html')
-
-class MappaSegnalazioniView_(LoginRequiredMixin, View):
-    def get(self, request, *args, **kwargs):
-        cache_key = 'mappa_segnalazioni_html'
-        html_content = cache.get(cache_key)
-
-        if html_content is None:
-            path = os.path.join(settings.BASE_DIR, 'core', 'templates', 'core', 'segnalazioni.html')
-            with open(path, encoding='utf-8') as f:
-                html_content = f.read()
-                cache.set(cache_key, html_content, 3600)  # Cache per 1 ora
 
         return HttpResponse(html_content, content_type='text/html')
 
